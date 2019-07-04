@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean
 import enum
 from items_control.data.db import engine
 from sqlalchemy_imageattach.entity import Image, image_attachment
@@ -178,4 +178,23 @@ class ItemMovido(Base):
 
     def __repr__(self):
         return "ItemMovido<-%s-,'%s','%s'>" %(self.id,self.cantidad)
+
+#--------------------------------Ventas--------------------------------------------------------
+class Venta(Base):
+    __tablename__ = "venta"
+
+    id = Column(Integer, primary_key=True)
+    fecha = Column(DateTime)
+    cantidad = Column(DateTime)
+    precio = Column(Integer)
+    invalidada = Column(Boolean)
+    observaciones = Column(String)
+
+    #cliente
+    cliente_id =Column(Integer, ForeignKey('cliente.id'))
+    cliente = relationship('Cliente',backref="venta")
+
+    #items
+    item_id = Column(Integer, ForeignKey('item.id'))
+    item = relationship('Item',backref="venta")
 
