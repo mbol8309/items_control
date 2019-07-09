@@ -1,45 +1,55 @@
-import sqlalchemy
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 import os
+
 
 def open_db(filename):
     if os.path.isfile(filename):
-        engine=Engine(filename)
-        session=Session()
+        global engine
+        global session
+        engine = Engine(filename)
+        session = Session()
+
 
 def create_db(filename):
     if not os.path.isfile(filename):
-        engine=Engine(filename)
-        session=Session()
+        global engine
+        global session
+        engine = Engine(filename)
+        session = Session()
         from items_control import orm
         orm.Base.metadata.create_all(engine)
 
+
 class Session(object):
 
-   def __new__(cls):
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = sessionmaker(bind=engine)
 
-       if not hasattr(cls, 'instance'):
+        return cls.instance
 
-           cls.instance = sqlalchemy.orm.sessionmaker(bind=engine)
-
-       return cls.instance
 
 class Engine(object):
 
-   def __new__(cls,filename): is None:
-       filename = "/items_control/data/db.sqlite"
+    def __new__(cls, filename):
+        filename = "/items_control/data/db.sqlite"
 
-       if filename is None:
-           filename = "/items_control/data/db.sqlite"
+        if filename is None:
+            filename = "/items_control/data/db.sqlite"
 
-       if not hasattr(cls, 'instance'):
+        if not hasattr(cls, 'filename'):
+            cls.filename = filename
+        else:
+            if cls.filename != filename:
+                cls.filename = filename
+                del cls.instance
 
-           cls.instance = sqlalchemy.create_engine('sqlite://%s' % filename)
+        if not hasattr(cls, 'instance'):
+            cls.instance = create_engine('sqlite://%s' % filename)
 
-       return cls.instance
+        return cls.instance
+
 
 engine = Engine(None)
 session = Session()
-
-
-
-

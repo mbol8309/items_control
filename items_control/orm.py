@@ -1,7 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean
 import enum
-from items_control.data.db import engine
+from items_control.data import db
 from sqlalchemy_imageattach.entity import Image, image_attachment
 from sqlalchemy.orm import relationship
 # from items_control.orm.base import Base
@@ -74,10 +74,6 @@ class ItemPadre(Base):
     foto = image_attachment('ItemPhoto')
     items = relationship('Item',backref="parent")
 
-    @staticmethod
-    def create_table():
-        Base.metadata.create_all(engine)
-
     def __repr__(self):
         return "ItemPadre<-%s-,'%s','%s'>" % (self.id,self.nombre,self.marca)
 
@@ -87,10 +83,6 @@ class ItemPhoto(Base, Image):
 
     item_id = Column(Integer,ForeignKey('item_padre.id'), primary_key=True)
     item = relationship('ItemPadre')
-
-    @staticmethod
-    def create_table():
-        Base.metadata.create_all(engine)
 
     def __repr__(self):
         return "ItemPhoto<-%s->" % (self.id)
@@ -116,10 +108,6 @@ class Item(Base):
 
     #movimientos
     movimientos = relationship('ItemMovido',backref="item")
-
-    @staticmethod
-    def create_table():
-        Base.metadata.create_all(engine)
 
     def __repr__(self):
         return "Item<-%s-,'%s'>" % (self.id,self.cantidad)
@@ -177,7 +165,7 @@ class ItemMovido(Base):
     # item = relationship('Item')
 
     def __repr__(self):
-        return "ItemMovido<-%s-,'%s','%s'>" %(self.id,self.cantidad)
+        return "ItemMovido<-%s-,'%s'>" %(self.id,self.cantidad)
 
 #--------------------------------Ventas--------------------------------------------------------
 class Venta(Base):
@@ -198,3 +186,5 @@ class Venta(Base):
     item_id = Column(Integer, ForeignKey('item.id'))
     item = relationship('Item',backref="venta")
 
+    def __repr__(self):
+        return "Venta<-%s-,'%s',%s,%s>" %(self.id,self.fecha, self.cantidad,self.precio)
