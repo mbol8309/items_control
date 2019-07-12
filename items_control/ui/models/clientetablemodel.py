@@ -11,10 +11,16 @@ class ClienteTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self,parent)
         self.clientedata = clientedata
 
-    def updateData(self, data):
-        self.clientedata = data
-        self.dataChanged()
-    
+    def addClient(self, client):
+        total = len(self.clientedata)
+        # self.beginInsertRows(self.parent,total,total+1)
+        self.clientedata.append(client)
+        # self.endInsertRows()
+        index = QModelIndex()
+        # self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),index, index)
+        self.dataChanged(index, index);
+        # self.reset()
+
     def columnCount(self,parent):
         return 4
 

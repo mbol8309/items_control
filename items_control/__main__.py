@@ -1,11 +1,6 @@
-from PyQt5 import QtWidgets
-from items_control.ui.mainwindow import MainWindow
-import sys
-
+from items_control.ui import MainWindow
+from six.moves import tkinter as tk
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec_()
+    MainWindow.create()

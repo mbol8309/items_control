@@ -3,5 +3,9 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"python.analysis.memory.keepLibraryLocalVariables": true
+	},
+	"python.pythonPath": "/usr/bin/python",
 }

@@ -1,48 +1,40 @@
-from items_control.ui.design import ui_clientesdialog
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QHeaderView
+# from items_control.ui.design import ui_clientesdialog
+# from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QHeaderView
 from items_control import orm
 from items_control.data import db
-from items_control.ui.models import clientetablemodel 
-from items_control.ui import addClientDialog
+# import Tkinter as tk
+# from items_control.ui.models import clientetablemodel
+# from items_control.ui import addClientDialog
+import wx
 
 
-class ClientesDialog(QDialog, ui_clientesdialog.Ui_ClienteDialog):
-    def __init__(self, parent=None):
-        QDialog.__init__(self,parent)
-        self.setupUi(self)
+class ClientesDialog(wx.Dialog):
+    def __init__(self, *args, **kw):
+        wx.Dialog.__init__(self, *args, **kw)
 
+        self.setupUI()
 
-        #create table view
+    def setupUI(self):
+        self.SetTitle("Clientes")
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        panel = wx.Panel(self)
+
+        self.list = wx.ListCtrl(panel, wx.ID_ANY, style=wx.LC_REPORT)
+
+        self.list.InsertColumn(0, 'Nombre', width=140)
+        self.list.InsertColumn(1, 'Telefono', width=130)
+        self.list.InsertColumn(2, 'Direccion')
+
         self.session = db.session()
         self.users = self.session.query(orm.Cliente).all()
-        self.model = clientetablemodel.ClienteTableModel(self.users)
 
-        self.clientTableView.setModel(self.model)
+        idx = 0
+        for u in self.users:
+            index = self.list.InsertItem(u.nombre)
+            self.list.SetItem(index, 1, u.telefono)
+            self.list.SetItem(index, 2, u.direccion)
+            idx += 1
 
-
-        self.buttonBox.accepted.connect(self.close)
-        self.clientTableView.resizeColumnsToContents()
-        self.addButton.clicked.connect(self.newClient)
-        self.buttonBox.accepted.connect(self.close)
-
-        # self.clientTableView.horizontalHeader.set
-        # ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    def accept(self):
-        self.session.commit()
-        self.close()
-
-    def newClient(self):
-        user = addClientDialog.addClientDialog.addClient(self)
-        if user != None:
-            self.session.add(user)
-            self.model.updateData(self.session.query(orm.Cliente).all())
-            self.session.commit()
-            self.clientTableView
-
-
-
-
-
-
-
-
+        hbox.Add(self.list, 1, wx.EXPAND)
+        panel.SetSizer(hbox)
