@@ -58,7 +58,7 @@ class Procedencia(Base):
     detalle = Column(String(200))
 
     #relacion con items
-    item = relationship('Item',backref="procedencia")
+    item = relationship('Item', backref="procedencia")
 
     def __repr__(self):
         return "Procedencia<-%s-,'%s'>" % (self.id,self.nombre)
