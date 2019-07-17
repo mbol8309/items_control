@@ -13,6 +13,7 @@ import os
 from items_control.ui.design_wx import items_control_wx as design_wx
 from items_control.ui.procedencia_dialog import ProcedenciaDialog
 from items_control.ui.items_dialog import ItemsDialog
+from items_control.ui.itementry import ItemsEntryDialog
 
 
 class MainWindow(design_wx.MainWindows):
@@ -94,6 +95,7 @@ class MainWindow(design_wx.MainWindows):
         self.client_menu.Enable(enable)
         self.proc_menu.Enable(enable)
         self.item_menu.Enable(enable)
+        self.entry_menu.Enable(enable)
 
     def create_menu_click(self, event):
         with wx.FileDialog(self, "Selecciona DB", wildcard="Sqlite files (*.sqlite)|*.sqlite",
@@ -107,6 +109,11 @@ class MainWindow(design_wx.MainWindows):
         #                                         filetypes=(("Sqlite files", "*.sqlite"), ("all files", "*.*")))
         # if len(filename) > 0:
             db.create_db(filename)
+
+    def entry_menu_click(self, event):
+        ie = ItemsEntryDialog(self)
+        ie.ShowModal()
+        ie.Destroy()
 
     def client_menu_click(self, event):
         cd = ClientesDialog(self)

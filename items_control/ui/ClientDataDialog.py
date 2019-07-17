@@ -34,7 +34,6 @@ class ClientDataDialog(design_wx.ClientDataDialog):
         self.tipo_cb.SetSelection(0)
 
     def okClick(self, event):
-        session = self.session
         client = None
         if self.client is not None:
             client = self.client
@@ -52,7 +51,10 @@ class ClientDataDialog(design_wx.ClientDataDialog):
 
         # adds session to DB
         if self.client is None:
+            session = db.session()
             session.add(client)
+        else:
+            session = self.session
 
         session.commit()
 

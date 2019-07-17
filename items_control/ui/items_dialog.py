@@ -1,6 +1,7 @@
 from items_control.ui.design_wx import items_control_wx as design_wx
 from items_control import orm
 from items_control.data import db
+from items_control.ui.detail_dialog import DetailDialog
 import wx
 
 
@@ -65,6 +66,14 @@ class ItemsDialog(design_wx.ItemsDialog):
             self.session.delete(item)
             self.session.commit()
             self.UpdateList()
+
+    def item_clicked(self, event):
+        index = self.item_list.GetFirstSelected()
+        if index == -1:
+            return
+
+        item = self.rowdict[index]
+        DetailDialog.ItemXArt(item, self)
 
 
 # ----------------------------------------------------------------------

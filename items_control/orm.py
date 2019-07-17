@@ -1,12 +1,14 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean, Float
 import enum
 from items_control.data import db
 from sqlalchemy_imageattach.entity import Image, image_attachment
 from sqlalchemy.orm import relationship
 # from items_control.orm.base import Base
+from datetime import datetime
 
 Base = declarative_base()
+
 
 #-------------USUARIO----------------------------------
 
@@ -72,7 +74,7 @@ class ItemPadre(Base):
     nombre = Column(String(50))
     marca  = Column(String(50))
     foto = image_attachment('ItemPhoto')
-    items = relationship('Item',backref="parent")
+    items = relationship('Item', backref="parent")
 
     def __repr__(self):
         return "ItemPadre<-%s-,'%s','%s'>" % (self.id,self.nombre,self.marca)
@@ -94,6 +96,7 @@ class Item(Base):
 
     id = Column(Integer, primary_key=True)
     cantidad = Column(Integer)
+    costo = Column(Float)
     
     #parent
     parent_id = Column(Integer,ForeignKey('item_padre.id'))
@@ -104,10 +107,26 @@ class Item(Base):
     # procedencia = relationship('Procedencia',back_populates="items")
 
     #precio
-    precio = relationship('PrecioVenta',backref='item')
+    precio = relationship('PrecioVenta', backref='item')
 
     #movimientos
     movimientos = relationship('ItemMovido',backref="item")
+
+    def addPrecio(self, precio):
+        """
+        Agrega un precio a los items, actualiza las fecha de inicio y fin de los precios anteriores
+        :param precio:
+        :return:
+        """
+
+        if isinstance(precio, float) or isinstance(precio, int):
+            precio = PrecioVenta.newPrecio(precio)
+
+        if isinstance(precio, PrecioVenta):
+            if len(self.precio) > 0:
+                last = self.precio[-1]
+                last.fecha_fin = datetime.now()
+            self.precio.append(precio)
 
     def __repr__(self):
         return "Item<-%s-,'%s'>" % (self.id,self.cantidad)
@@ -116,11 +135,21 @@ class PrecioVenta(Base):
     __tablename__ = "precio_venta"
 
     id = Column(Integer, primary_key=True)
+    precio = Column(Float)
     fecha_inicio = Column(Date)
     fecha_final = Column(Date)
 
     item_id = Column(Integer, ForeignKey('item.id'))
     # item = relationship('Item',back_populates='precio')
+
+    @staticmethod
+    def newPrecio(precio, fecha_inicio=None):
+        p = PrecioVenta()
+        p.precio = precio
+        if fecha_inicio is None:
+            fecha_inicio = datetime.now()
+        p.fecha_inicio = fecha_inicio
+        return p
 
     def __repr__(self):
         return "PrecioVenta<-%s-,'%s','%s'>" %(self.id,self.fecha_inicio,self.fecha_final)
