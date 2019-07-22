@@ -61,6 +61,9 @@ class DetailDialog(design_wx.DetailDialog):
         d.item_list.InsertColumn(1, "Cantidad")
         d.item_list.InsertColumn(2, "Ultimo Precio")
         d.item_list.InsertColumn(3, "Costo")
+        d.item_list.InsertColumn(4, "Restantes")
+        d.item_list.InsertColumn(5, "Por pagar")
+        d.item_list.InsertColumn(6, "Vendidos")
 
         d.idx = 0
         d.itemdict = {}
@@ -69,6 +72,9 @@ class DetailDialog(design_wx.DetailDialog):
             d.item_list.SetItem(index, 1, str(i.cantidad))
             d.item_list.SetItem(index, 2, str(i.precio[-1].precio))
             d.item_list.SetItem(index, 3, str(i.costo))
+            d.item_list.SetItem(index, 4, str(i.restantes))
+            d.item_list.SetItem(index, 5, str(i.salidas - i.vendidos - i.devoluciones))
+            d.item_list.SetItem(index, 6, str(i.vendidos))
             d.idx += 1
             d.itemdict[index] = i
 

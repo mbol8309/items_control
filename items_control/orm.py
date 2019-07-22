@@ -1,9 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean, Float
+from sqlalchemy import Column, Integer, String, Enum, Date, DateTime, ForeignKey, Boolean, Float, select, func, alias, \
+    join, outerjoin, and_
 import enum
 from items_control.data import db
 from sqlalchemy_imageattach.entity import Image, image_attachment
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, column_property
 # from items_control.orm.base import Base
 from datetime import datetime
 
@@ -89,6 +90,75 @@ class ItemPhoto(Base, Image):
     def __repr__(self):
         return "ItemPhoto<-%s->" % (self.id)
 
+
+# --------------------------------Ventas--------------------------------------------------------
+class Venta(Base):
+    __tablename__ = "venta"
+
+    id = Column(Integer, primary_key=True)
+    fecha = Column(DateTime)
+    cantidad = Column(DateTime)
+    precio = Column(Integer)
+    invalidada = Column(Boolean)
+    observaciones = Column(String)
+
+    # cliente
+    cliente_id = Column(Integer, ForeignKey('cliente.id'))
+    cliente = relationship('Cliente', backref="ventas")
+
+    # items
+    item_id = Column(Integer, ForeignKey('item.id'))
+    item = relationship('Item', backref="venta")
+
+    def __repr__(self):
+        return "Venta<-%s-,'%s',%s,%s>" % (self.id, self.fecha, self.cantidad, self.precio)
+
+
+# -----------------------------Item Movido-----------------------------------------------
+
+class ItemMovido(Base):
+    __tablename__ = "items_movido"
+
+    id = Column(Integer, primary_key=True)
+    cantidad = Column(Integer)
+    observaciones = Column(String(200))
+
+    # movimiento
+    movimiento_id = Column(Integer, ForeignKey('movimiento.id'))
+
+    # item
+    item_id = Column(Integer, ForeignKey('item.id'))
+
+    # item = relationship('Item')
+
+    def __repr__(self):
+        return "ItemMovido<-%s-,'%s'>" % (self.id, self.cantidad)
+
+
+# ------------------------------MOVIMIENTO------------------------------------------------
+class TipoMovimiento(enum.Enum):
+    SALIDA = 1
+    DEVOLUCION = 2
+
+
+class Movimiento(Base):
+    """Maneja los movimientos de ropa"""
+
+    __tablename__ = "movimiento"
+
+    id = Column(Integer, primary_key=True)
+    fecha = Column(DateTime)
+    tipo = Column(Enum(TipoMovimiento))
+
+    items = relationship('ItemMovido', backref="movimiento")
+
+    # cliente link
+    cliente_id = Column(Integer, ForeignKey("cliente.id"))
+
+    def __repr__(self):
+        return "Movimiento<-%s-,'%s','%s'>" % (self.id, self.fecha, self.tipo)
+
+
 class Item(Base):
     """Store Item info"""
 
@@ -100,17 +170,59 @@ class Item(Base):
     
     #parent
     parent_id = Column(Integer,ForeignKey('item_padre.id'))
-    # parent = relationship('ItemPadre',back_populates="items")
 
     #procedencia
     procedencia_id = Column(Integer,ForeignKey('procedencia.id'))
-    # procedencia = relationship('Procedencia',back_populates="items")
 
     #precio
     precio = relationship('PrecioVenta', backref='item')
 
     #movimientos
-    movimientos = relationship('ItemMovido',backref="item")
+    movimientos = relationship('ItemMovido', backref="item")
+
+    # select *, (cantidad - ifnull(salidas,0) + ifnull(entradas,0)) as resultante from item left join
+    # (select im.item_id as id1, ifnull(sum(cantidad),0) as salidas from items_movido as im
+    # left join movimiento as m on m.id = im.movimiento_id where m.tipo == 'SALIDA' group by im.item_id)
+    # as r1 on item.id = r1.id1 left join
+    # (select im.item_id as id2, ifnull(sum(cantidad),0) as entradas from items_movido as im left join
+    # movimiento as m on m.id = im.movimiento_id where m.tipo == 'DEVOLUCION' group by im.item_id) as r2 on r1.id1 = r2.id2
+
+    # salidas = alias(func.sum(ItemMovido.cantidad))
+    # entradas = alias(func.sum(ItemMovido.cantidad))
+
+    salidas = column_property(select([func.ifnull(func.sum(ItemMovido.cantidad), 0)]).
+                              where(and_(Movimiento.tipo == TipoMovimiento.SALIDA,
+                                         ItemMovido.item_id == id,
+                                         ItemMovido.movimiento_id == Movimiento.id)))
+
+    devoluciones = column_property(select([func.ifnull(func.sum(ItemMovido.cantidad), 0)]).
+                                   where(and_(Movimiento.tipo == TipoMovimiento.DEVOLUCION,
+                                              ItemMovido.item_id == id,
+                                              ItemMovido.movimiento_id == Movimiento.id)))
+
+    vendidos = column_property(select([func.ifnull(func.sum(Venta.cantidad), 0)]).
+                               where(and_(Venta.item_id == id,
+                                          Venta.invalidada is False)))
+
+    restantes = column_property(cantidad - salidas + devoluciones - vendidos)
+
+    # outerjoin(ItemMovido, ItemMovido.item_id == id).
+    # outerjoin(Movimiento, ItemMovido.movimiento_id == Movimiento.id).label('salidas')
+    # )
+
+    # r_salida = alias(select([ItemMovido, func.sum(ItemMovido.cantidad).label('salidas')]).
+    #                  where(Movimiento.tipo == TipoMovimiento.SALIDA).group_by(ItemMovido.id).
+    #                  outerjoin(Movimiento, Movimiento.id == ItemMovido.movimiento_id))
+    #
+    # r_devolucion = alias(select([ItemMovido, func.sum(ItemMovido.cantidad).label('entradas')]).
+    #                      where(Movimiento.tipo == TipoMovimiento.DEVOLUCION).group_by(ItemMovido.id).
+    #                      outerjoin(Movimiento, Movimiento.id == ItemMovido.movimiento_id))
+    #
+    #
+    # #atributos para saber los restantes
+    # restantes = column_property(select([cantidad]).
+    #     outerjoin(r_salida, id == r_salida.c.item_id).
+    #     outerjoin(r_devolucion, id == r_devolucion.c.item_id))
 
     def addPrecio(self, precio):
         """
@@ -155,65 +267,5 @@ class PrecioVenta(Base):
         return "PrecioVenta<-%s-,'%s','%s'>" %(self.id,self.fecha_inicio,self.fecha_final)
 
 
-#------------------------------MOVIMIENTO------------------------------------------------
-class TipoMovimiento(enum.Enum):
-    SALIDA = 1
-    DEVOLUCION = 2
 
-class Movimiento(Base):
-    """Maneja los movimientos de ropa"""
 
-    __tablename__ = "movimiento"
-
-    id = Column(Integer, primary_key=True)
-    fecha = Column(DateTime)
-    tipo = Column(Enum(TipoMovimiento))
-
-    items = relationship('ItemMovido', backref="movimiento")
-
-    #cliente link
-    cliente_id = Column(Integer, ForeignKey("cliente.id"))
-    
-    def __repr__(self):
-        return "Movimiento<-%s-,'%s','%s'>" %(self.id,self.fecha,self.tipo)
-#-----------------------------Item Movido-----------------------------------------------
-
-class ItemMovido(Base):
-    __tablename__ = "items_movido"
-
-    id = Column(Integer, primary_key=True)
-    cantidad = Column(Integer)
-    observaciones = Column(String(200))
-
-    #movimiento
-    movimiento_id = Column(Integer,ForeignKey('movimiento.id'))
-    # movimiento = relationship('Movimiento', back_populates="items")
-
-    #item
-    item_id = Column(Integer, ForeignKey('item.id'))
-    # item = relationship('Item')
-
-    def __repr__(self):
-        return "ItemMovido<-%s-,'%s'>" %(self.id,self.cantidad)
-
-#--------------------------------Ventas--------------------------------------------------------
-class Venta(Base):
-    __tablename__ = "venta"
-
-    id = Column(Integer, primary_key=True)
-    fecha = Column(DateTime)
-    cantidad = Column(DateTime)
-    precio = Column(Integer)
-    invalidada = Column(Boolean)
-    observaciones = Column(String)
-
-    #cliente
-    cliente_id =Column(Integer, ForeignKey('cliente.id'))
-    cliente = relationship('Cliente',backref="venta")
-
-    #items
-    item_id = Column(Integer, ForeignKey('item.id'))
-    item = relationship('Item',backref="venta")
-
-    def __repr__(self):
-        return "Venta<-%s-,'%s',%s,%s>" %(self.id,self.fecha, self.cantidad,self.precio)

@@ -28,44 +28,6 @@ class MainWindow(design_wx.MainWindows):
                     item = self.recent_menu.Append(wx.ID_ANY, "Abrir...%s" % os.path.basename(i), i)
                     self.Bind(wx.EVT_MENU, lambda event: self.openRecent(event, i), item)
 
-    # def setupUI(self):
-    #     menubar = wx.MenuBar()
-    #
-    #     # filemenu
-    #     filemenu = wx.Menu()
-    #
-    #     #open
-    #     file_open = filemenu.Append(wx.ID_ANY, "Abrir DB","Abrir una base de Datos")
-    #     self.Bind(wx.EVT_MENU, self.openDB, file_open)
-    #
-    #     #open recents
-    #
-    #
-    #     #create
-    #     file_create = filemenu.Append(wx.ID_ANY, "Crear DB", "Crear Base de Datos")
-    #     self.Bind(wx.EVT_MENU, self.createDB, file_create)
-    #
-    #     #salir
-    #     filemenu.AppendSeparator()
-    #     file_exit_item = filemenu.Append(wx.ID_EXIT, "Salir", "Salir de aqui!!!")
-    #     self.Bind(wx.EVT_MENU, self.onQuit, file_exit_item)
-    #
-    #
-    #
-    #
-    #     menubar.Append(filemenu, "&Archivo")
-    #
-    #     configmenu = wx.Menu()
-    #     configmenu_clientes = configmenu.Append(wx.ID_ANY, "Clientes", "Ver informacion de clientes")
-    #     self.Bind(wx.EVT_MENU, self.openClientWindow, configmenu_clientes)
-    #     menubar.Append(configmenu, "Datos")
-    #
-    #     self.SetMenuBar(menubar)
-    #
-    #     self.SetTitle("Control de Ropa")
-    #     self.SetSize((500, 500))
-    #     self.Centre()
-
     def openRecent(self, e, filename):
         if os.path.exists(filename) and os.path.isfile(filename):
             db.open_db(filename)

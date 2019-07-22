@@ -3,12 +3,12 @@ from sqlalchemy import create_engine
 import os
 
 
-def open_db(filename):
+def open_db(filename, debug=False):
     if os.path.isfile(filename):
         resetglobal()
         global engine
         global session
-        engine = Engine(filename)
+        engine = Engine(filename, debug)
         session = Session()
 
 
@@ -44,7 +44,7 @@ class Session(object):
 
 class Engine(object):
 
-    def __new__(cls, filename):
+    def __new__(cls, filename, debug=False):
         # filename = "/items_control/data/db.sqlite"
 
         if filename is None:
@@ -58,7 +58,7 @@ class Engine(object):
         #         del cls.instance
 
         if not hasattr(cls, 'instance'):
-            cls.instance = create_engine('sqlite:///%s' % filename)
+            cls.instance = create_engine('sqlite:///%s' % filename, echo=debug)
 
         return cls.instance
 
