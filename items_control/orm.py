@@ -30,25 +30,7 @@ class TipoClienteEnum(enum.Enum):
     MAYORITARIO = 1
     MINORITARIO = 2
 
-class Cliente(Base):
-    __tablename__ = "cliente"
 
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String(50))
-    telefono = Column(String(50))
-    direccion = Column(String(300))
-    tipo = Column(Enum(TipoClienteEnum))
-
-    #movimientos
-
-    movimientos = relationship("Movimiento", backref="cliente")
-    
-    # @staticmethod
-    # def create_table():
-    #     Base.metadata.create_all(engine)
-
-    def __repr__(self):
-        return "Cliente<-%s-,'%s','%s'>" %(self.id,self.nombre,self.tipo)
 
 #------------------PROCEDENCIA----------------------------------
 
@@ -267,5 +249,36 @@ class PrecioVenta(Base):
         return "PrecioVenta<-%s-,'%s','%s'>" %(self.id,self.fecha_inicio,self.fecha_final)
 
 
+class Cliente(Base):
+    __tablename__ = "cliente"
 
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String(50))
+    telefono = Column(String(50))
+    direccion = Column(String(300))
+    tipo = Column(Enum(TipoClienteEnum))
 
+    # movimientos
+
+    movimientos = relationship("Movimiento", backref="cliente")
+
+    # select r1.item_id, r1.nombre, r1.cliente_id, r1.total_sal, r2.total_dev, (
+    #             ifnull(r1.total_sal, 0) - ifnull(r2.total_dev, 0)) as tiene
+    # from (select im.item_id, m.tipo, c.nombre, sum(im.cantidad) as total_sal, m.cliente_id
+    # from movimiento as m
+    # left join items_movido as im on  im.movimiento_id == m.id
+    # left join cliente as c on c.id == m.cliente_id
+    # where m.tipo = "SALIDA" group by im.item_id, m.tipo, m.cliente_id) as r1
+    # left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id
+    # from movimiento as m
+    # left join items_movido as im on im.movimiento_id == m.id
+    # left join cliente as c on c.id == m.cliente_id
+    # where m.tipo = "DEVOLUCION"
+    # group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id
+
+    # @staticmethod
+    # def create_table():
+    #     Base.metadata.create_all(engine)
+
+    def __repr__(self):
+        return "Cliente<-%s-,'%s','%s'>" % (self.id, self.nombre, self.tipo)

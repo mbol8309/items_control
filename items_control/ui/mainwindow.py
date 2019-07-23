@@ -14,6 +14,7 @@ from items_control.ui.design_wx import items_control_wx as design_wx
 from items_control.ui.procedencia_dialog import ProcedenciaDialog
 from items_control.ui.items_dialog import ItemsDialog
 from items_control.ui.itementry import ItemsEntryDialog
+from items_control.ui.movimiento_dialog import MovimientoDialog
 
 
 class MainWindow(design_wx.MainWindows):
@@ -58,6 +59,7 @@ class MainWindow(design_wx.MainWindows):
         self.proc_menu.Enable(enable)
         self.item_menu.Enable(enable)
         self.entry_menu.Enable(enable)
+        self.mov_submenu.Enable(enable)
 
     def create_menu_click(self, event):
         with wx.FileDialog(self, "Selecciona DB", wildcard="Sqlite files (*.sqlite)|*.sqlite",
@@ -92,6 +94,10 @@ class MainWindow(design_wx.MainWindows):
         im.ShowModal()
         im.Destroy()
 
+    def mov_menu_click(self, event):
+        m = MovimientoDialog(self)
+        m.ShowModal()
+        m.Destroy()
 
     @staticmethod
     def create():

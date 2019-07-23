@@ -8,6 +8,10 @@ from items_control.ui.procedencia_dialog import ProcedenciaDataDialog, PROCEDENC
 C_PROC, C_ITEM, C_CANT, C_COST, C_PRECIO = range(5)
 
 
+# class ItemsEntryListItem(wx.ListItem):
+#     def __init__(self, parent=None):
+
+
 class ItemsEntryDialog(design_wx.ItemEntryDialog):
     def __init__(self, parent):
         design_wx.ItemEntryDialog.__init__(self, parent)
@@ -67,12 +71,14 @@ class ItemsEntryDialog(design_wx.ItemEntryDialog):
     def _insert_item(self, item):
 
         count = self.item_list.GetItemCount()
+        item.custom_id = id(item)
         index = self.item_list.InsertItem(count, item.procedencia.nombre)
         self.item_list.SetItem(index, C_ITEM, item.parent.nombre)
         self.item_list.SetItem(index, C_CANT, str(item.cantidad))
         self.item_list.SetItem(index, C_COST, str(item.costo))
         self.item_list.SetItem(index, C_PRECIO, str(item.precio[-1].precio))
-        self.entry_items_dict[index] = item
+        self.item_list.SetItemData(index, item.custom_id)
+        self.entry_items_dict[item.custom_id] = item
 
     def add_click(self, event):
         for i in [self.cantidad_txt, self.cost_txt, self.price_txt]:
@@ -109,6 +115,16 @@ class ItemsEntryDialog(design_wx.ItemEntryDialog):
 
     def cancel_click(self, event):
         self.Close()
+
+    def eliminar_click(self, event):
+        index = self.item_list.GetFirstSelected()
+        if index == -1:
+            return
+
+        data = self.item_list.GetItemData(index)
+        del (self.entry_items_dict[data])
+
+        self.item_list.DeleteItem(index)
 
     def ok_click(self, event):
         for i in self.entry_items_dict:
