@@ -1,4 +1,4 @@
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine
 import os
 
@@ -21,6 +21,12 @@ def create_db(filename):
         session = Session()
         from items_control import orm
         orm.Base.metadata.create_all(engine)
+
+
+def getScopedSession():
+    global session
+    global engine
+    return scoped_session(sessionmaker(bind=engine))
 
 
 def resetglobal():
@@ -65,3 +71,4 @@ class Engine(object):
 
 engine = Engine(None)
 session = Session()
+

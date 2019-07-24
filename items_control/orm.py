@@ -7,6 +7,9 @@ from sqlalchemy_imageattach.entity import Image, image_attachment
 from sqlalchemy.orm import relationship, column_property
 # from items_control.orm.base import Base
 from datetime import datetime
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
+from items_control.data import db
+from sqlalchemy.sql import text
 
 Base = declarative_base()
 
@@ -125,6 +128,10 @@ class TipoMovimiento(enum.Enum):
 
 class Movimiento(Base):
     """Maneja los movimientos de ropa"""
+
+    def __init__(self, fecha=datetime.now()):
+        Base.__init__(self)
+        self.fecha = fecha
 
     __tablename__ = "movimiento"
 
@@ -261,6 +268,52 @@ class Cliente(Base):
     # movimientos
 
     movimientos = relationship("Movimiento", backref="cliente")
+
+    @hybrid_method
+    def posession_items(self):
+        # TODO: Make this from another way. This is for going fast and is a shit
+
+        engine = db.Engine.instance
+        with engine.connect() as conn:
+            sql = """ select r1.item_id, (ifnull(r1.total_sal,0) - ifnull(r2.total_dev,0)) as tiene
+            from (select im.item_id, m.tipo, c.nombre, sum(im.cantidad) as total_sal, m.cliente_id from movimiento as m 
+            left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id
+            where m.tipo = "SALIDA" and c.id == %d group by im.item_id, m.tipo,m.cliente_id) as r1
+            left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id  from movimiento as m
+            left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id 
+            where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
+            left join item on item.id == r1.item_id;
+                    """ % self.id
+
+            results = conn.execute(text(sql))
+            r = []
+            ids = []
+            for row in results:
+                ids.append(row['item_id'])
+                r.append((row['item_id'], row['tiene']))
+                # i = Item()
+                # i.id = row['id']
+                # i.cantidad = row['cantidad']
+                # i.procedencia_id = row['procedencia_id']
+                # i.parent_id = row['parent_id']
+                # i.costo = row['costo']
+                # i.tiene = row['tiene']
+                # items.append(i)
+
+            session = db.session()
+            items = session.query(Item).filter(Item.id.in_(ids)).all()
+            for i in items:
+                for row in r:
+                    if row[0] == i.id:
+                        i.tiene = row[1]
+                        break
+
+            return items
+
+        # rs = select([ItemMovido, func.sum(ItemMovido.cantidad)]). \
+        #             where(and_(Movimiento.tipo == TipoMovimiento.SALIDA)).\
+        #             group_by(ItemMovido.item_id, Movimiento.cliente_id)
+
 
     # select r1.item_id, r1.nombre, r1.cliente_id, r1.total_sal, r2.total_dev, (
     #             ifnull(r1.total_sal, 0) - ifnull(r2.total_dev, 0)) as tiene

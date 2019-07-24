@@ -21,6 +21,7 @@ session = db.session()
 # session.add(m)
 # session.commit()
 
-items = session.query(orm.Item).all()
-
+client = session.query(orm.Cliente).all()
+i = client[0].posession_items()
+items = session.query(i).all()
 print items

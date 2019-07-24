@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/items_control/data/db.py" line="43" />
+    <bookmark url="file://$PROJECT_DIR$/items_control/data/db.py" line="48" />
     <bookmark url="file://$PROJECT_DIR$/items_control/data/db.py" line="21" />
+    <bookmark url="file://$PROJECT_DIR$/items_control/orm.py" line="14" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="475a9234-db38-4083-b5f9-a283b2de54e9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/items_control/ui/movimiento_dialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/items_control/data/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/data/db.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/items_control/data/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/data/db.sqlite" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/items_control/orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/orm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/ui/itementry.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/itementry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/ui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/mainwindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/items_control/tests/test_orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/tests/test_orm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/items_control/ui/movimiento_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/movimiento_dialog.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,35 +25,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/mainwindow.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
-              <folding>
-                <element signature="e#98#131#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="1" column="42" selection-start-line="1" selection-start-column="42" selection-end-line="1" selection-end-column="42" />
-              <folding>
-                <element signature="e#0#50#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/items_control/orm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="495">
-              <caret line="276" column="44" selection-start-line="276" selection-start-column="44" selection-end-line="276" selection-end-column="44" />
+            <state relative-caret-position="-41">
+              <caret line="132" column="26" selection-start-line="132" selection-start-column="26" selection-end-line="132" selection-end-column="26" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
               </folding>
@@ -61,12 +38,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/items_dialog.py">
+        <entry file="file://$PROJECT_DIR$/items_control/data/db.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="985">
-              <caret line="74" column="22" selection-start-line="74" selection-start-column="22" selection-end-line="74" selection-end-column="22" />
+            <state relative-caret-position="162">
+              <caret line="27" column="52" lean-forward="true" selection-start-line="27" selection-start-column="52" selection-end-line="27" selection-end-column="52" />
               <folding>
-                <element signature="e#0#68#0" expanded="true" />
+                <element signature="e#0#39#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -75,8 +52,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/items_control/tests/test_orm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
-              <caret line="20" column="16" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
+            <state relative-caret-position="324">
+              <caret line="24" selection-start-line="24" selection-end-line="24" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -85,19 +62,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/clientedialog.py">
+        <entry file="file://$PROJECT_DIR$/items_control/ui/movimiento_dialog.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
-              <caret line="16" column="23" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/itementry.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
-              <caret line="46" column="30" selection-start-line="46" selection-start-column="25" selection-end-line="46" selection-end-column="30" />
+            <state relative-caret-position="2563">
+              <caret line="298" column="18" lean-forward="true" selection-start-line="298" selection-start-column="18" selection-end-line="298" selection-end-column="18" />
               <folding>
                 <element signature="e#0#68#0" expanded="true" />
               </folding>
@@ -106,10 +74,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/movimiento_dialog.py">
+        <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/Choice.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="148">
-              <caret line="199" column="54" lean-forward="true" selection-start-line="199" selection-start-column="54" selection-end-line="199" selection-end-column="54" />
+            <state relative-caret-position="282">
+              <caret line="137" column="8" selection-start-line="137" selection-start-column="8" selection-end-line="137" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/ItemContainer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="273">
+              <caret line="117" column="8" selection-start-line="117" selection-start-column="8" selection-end-line="117" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/items_control/ui/detail_dialog.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="900">
+              <caret line="51" column="36" selection-start-line="51" selection-start-column="36" selection-end-line="51" selection-end-column="36" />
               <folding>
                 <element signature="e#0#68#0" expanded="true" />
               </folding>
@@ -120,20 +106,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file:///usr/lib64/python2.7/site-packages/wx/core.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="151">
+            <state relative-caret-position="475">
               <caret line="2165" selection-start-line="2165" selection-end-line="2165" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/items_control/ui/detail_dialog.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="477">
-              <caret line="51" column="36" lean-forward="true" selection-start-line="51" selection-start-column="36" selection-end-line="51" selection-end-column="36" />
-              <folding>
-                <element signature="e#0#68#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -160,7 +134,16 @@
       <find>Clear</find>
       <find>clear</find>
       <find>ItemMo</find>
+      <find>session()</find>
+      <find>db.session()</find>
+      <find>db.s</find>
+      <find>session = self.session</find>
+      <find>movimiento</find>
+      <find>self.session</find>
     </findStrings>
+    <replaceStrings>
+      <replace>session = db.getScopedSession()</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
@@ -181,15 +164,15 @@
         <option value="$PROJECT_DIR$/items_control/ui/procedencia_dialog.py" />
         <option value="$PROJECT_DIR$/items_control/ui/ClientDataDialog.py" />
         <option value="$PROJECT_DIR$/items_control/ui/items_dialog.py" />
-        <option value="$PROJECT_DIR$/items_control/data/db.py" />
-        <option value="$PROJECT_DIR$/items_control/tests/test_orm.py" />
         <option value="$PROJECT_DIR$/items_control/ui/detail_dialog.py" />
         <option value="$PROJECT_DIR$/items_control/ui/itementry.py" />
         <option value="$PROJECT_DIR$/items_control/ui/MovimientosDialog.py" />
         <option value="$PROJECT_DIR$/items_control/ui/__init__.py" />
         <option value="$PROJECT_DIR$/items_control/ui/mainwindow.py" />
-        <option value="$PROJECT_DIR$/items_control/ui/movimiento_dialog.py" />
+        <option value="$PROJECT_DIR$/items_control/tests/test_orm.py" />
+        <option value="$PROJECT_DIR$/items_control/data/db.py" />
         <option value="$PROJECT_DIR$/items_control/orm.py" />
+        <option value="$PROJECT_DIR$/items_control/ui/movimiento_dialog.py" />
       </list>
     </option>
   </component>
@@ -203,6 +186,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -219,19 +203,12 @@
               <item name="items_control" type="b2602c69:ProjectViewProjectNode" />
               <item name="items_control" type="462c0819:PsiDirectoryNode" />
               <item name="items_control" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="items_control" type="b2602c69:ProjectViewProjectNode" />
-              <item name="items_control" type="462c0819:PsiDirectoryNode" />
-              <item name="items_control" type="462c0819:PsiDirectoryNode" />
               <item name="ui" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -255,7 +232,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.movimiento_dialog">
+  <component name="RunManager" selected="Python.items_control">
     <configuration name="addClientDialog" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="items_control" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -416,7 +393,14 @@
       <option name="project" value="LOCAL" />
       <updated>1563828514826</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="creando dialogo de movimientos, hay que crear ahora un column property para que desde la clase de los clientes se pueda obtener los items que tienen">
+      <created>1563851472044</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1563851472044</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TodoView">
@@ -430,7 +414,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="43" width="1920" height="1037" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19281563" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -441,7 +424,7 @@
       <window_info anchor="bottom" id="Inspection" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Run" order="4" weight="0.3287827" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32998884" />
-      <window_info anchor="bottom" id="Version Control" order="6" weight="0.3287827" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="6" visible="true" weight="0.3287827" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32998884" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" weight="0.32992035" />
       <window_info anchor="bottom" id="Python Console" order="9" weight="0.32992035" />
@@ -457,7 +440,8 @@
     <MESSAGE value="mek dialogs for items, procedencia and cliente" />
     <MESSAGE value="falta los dialogos de los movimientos y de la venta. los anteriores estan hechos, despues de eso solo faltan los reportes." />
     <MESSAGE value="added column_property to best calculating remaining items" />
-    <option name="LAST_COMMIT_MESSAGE" value="added column_property to best calculating remaining items" />
+    <MESSAGE value="creando dialogo de movimientos, hay que crear ahora un column property para que desde la clase de los clientes se pueda obtener los items que tienen" />
+    <option name="LAST_COMMIT_MESSAGE" value="creando dialogo de movimientos, hay que crear ahora un column property para que desde la clase de los clientes se pueda obtener los items que tienen" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -486,8 +470,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/items_control/orm.py</url>
-          <line>204</line>
+          <line>210</line>
           <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/items_control/ui/movimiento_dialog.py</url>
+          <line>307</line>
+          <option name="timeStamp" value="70" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/items_control/ui/movimiento_dialog.py</url>
+          <line>321</line>
+          <option name="timeStamp" value="71" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -627,13 +621,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/ItemContainer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="8" selection-start-line="18" selection-start-column="8" selection-end-line="18" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/ListCtrl.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="282">
@@ -654,16 +641,6 @@
           <caret line="105" selection-start-line="105" selection-end-line="105" />
           <folding>
             <element signature="e#0#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/data/db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="10" column="40" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -705,32 +682,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/tests/test_orm.py">
+    <entry file="file://$PROJECT_DIR$/items_control/ui/mainwindow.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="20" column="16" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
+        <state relative-caret-position="972">
+          <caret line="68" selection-start-line="68" selection-end-line="68" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/ui/items_dialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="985">
-          <caret line="74" column="22" selection-start-line="74" selection-start-column="22" selection-end-line="74" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/ui/detail_dialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="477">
-          <caret line="51" column="36" lean-forward="true" selection-start-line="51" selection-start-column="36" selection-end-line="51" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#68#0" expanded="true" />
+            <element signature="e#98#131#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -745,27 +702,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py">
+    <entry file="file://$PROJECT_DIR$/items_control/ui/items_dialog.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="223" lean-forward="true" selection-start-line="223" selection-end-line="223" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/ui/mainwindow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
-          <folding>
-            <element signature="e#98#131#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/items_control/ui/itementry.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="139">
-          <caret line="46" column="30" selection-start-line="46" selection-start-column="25" selection-end-line="46" selection-end-column="30" />
+        <state relative-caret-position="1260">
+          <caret line="74" column="22" selection-start-line="74" selection-start-column="22" selection-end-line="74" selection-end-column="22" />
           <folding>
             <element signature="e#0#68#0" expanded="true" />
           </folding>
@@ -774,22 +714,90 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/items_control/ui/clientedialog.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="139">
+        <state relative-caret-position="216">
           <caret line="16" column="23" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/items_control/ui/itementry.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="738">
+          <caret line="46" column="30" selection-start-line="46" selection-start-column="25" selection-end-line="46" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#68#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/items_control/ui/detail_dialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="900">
+          <caret line="51" column="36" selection-start-line="51" selection-start-column="36" selection-end-line="51" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#68#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/sqlalchemy/ext/hybrid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="151">
+          <caret line="894" selection-start-line="894" selection-end-line="894" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/items_control/tests/test_orm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/Choice.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="282">
+          <caret line="137" column="8" selection-start-line="137" selection-start-column="8" selection-end-line="137" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/1754924404/wx/_core/ItemContainer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="117" column="8" selection-start-line="117" selection-start-column="8" selection-end-line="117" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/items_control/data/db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="27" column="52" lean-forward="true" selection-start-line="27" selection-start-column="52" selection-end-line="27" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="660">
+          <caret line="880" column="49" selection-start-line="880" selection-start-column="49" selection-end-line="880" selection-end-column="49" />
         </state>
       </provider>
     </entry>
     <entry file="file:///usr/lib64/python2.7/site-packages/wx/core.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
+        <state relative-caret-position="475">
           <caret line="2165" selection-start-line="2165" selection-end-line="2165" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/items_control/ui/movimiento_dialog.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="199" column="54" lean-forward="true" selection-start-line="199" selection-start-column="54" selection-end-line="199" selection-end-column="54" />
+        <state relative-caret-position="2563">
+          <caret line="298" column="18" lean-forward="true" selection-start-line="298" selection-start-column="18" selection-end-line="298" selection-end-column="18" />
           <folding>
             <element signature="e#0#68#0" expanded="true" />
           </folding>
@@ -798,8 +806,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/items_control/orm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="276" column="44" selection-start-line="276" selection-start-column="44" selection-end-line="276" selection-end-column="44" />
+        <state relative-caret-position="-41">
+          <caret line="132" column="26" selection-start-line="132" selection-start-column="26" selection-end-line="132" selection-end-column="26" />
           <folding>
             <element signature="e#0#55#0" expanded="true" />
           </folding>
