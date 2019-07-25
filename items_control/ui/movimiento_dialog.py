@@ -4,7 +4,7 @@ from items_control.data import db
 import wx
 from datetime import datetime
 
-ITEM_PROC, ITEM_ITEM, ITEM_CANTIDAD, ITEM_MOVE_OK, ITEM_MOVE_CANCEL = range(5)
+ITEM_PROC, ITEM_ITEM, ITEM_CANTIDAD, ITEM_PRECIO, ITEM_MOVE_OK, ITEM_MOVE_CANCEL = range(6)
 
 
 class ItemMove(design_wx.EntityMove):
@@ -116,13 +116,21 @@ class MovimientoDialog(design_wx.MovementDialog):
 
     def _reset_tables(self):
 
-        lists = [self.item_left_list, self.item_client_has, self.item_client_take, self.item_dev_list]
+        lists_price = [self.item_left_list, self.item_client_take]
+        lists = [self.item_client_has, self.item_dev_list]
 
         for l in lists:
             l.ClearAll()
             l.InsertColumn(ITEM_PROC, "Procedencia")
             l.InsertColumn(ITEM_ITEM, "Articulo")
             l.InsertColumn(ITEM_CANTIDAD, "Cantidad")
+
+        for l in lists_price:
+            l.ClearAll()
+            l.InsertColumn(ITEM_PROC, "Procedencia")
+            l.InsertColumn(ITEM_ITEM, "Articulo")
+            l.InsertColumn(ITEM_CANTIDAD, "Cantidad")
+            l.InsertColumn(ITEM_PRECIO, "Precio")
 
     def _restart_item_left(self):
 
@@ -136,6 +144,7 @@ class MovimientoDialog(design_wx.MovementDialog):
             index = self.item_left_list.InsertItem(idx, i.procedencia.nombre)
             self.item_left_list.SetItem(index, ITEM_ITEM, i.parent.nombre)
             self.item_left_list.SetItem(index, ITEM_CANTIDAD, str(i.restantes))
+            self.item_left_list.SetItem(index, ITEM_PRECIO, str(i.precio[-1].precio))
             self.item_left_list.SetItemData(index, i.custom_id)
             idx += 1
             self.item_left_dict[i.custom_id] = i
@@ -235,6 +244,7 @@ class MovimientoDialog(design_wx.MovementDialog):
         index = lista.InsertItem(count, item.item.procedencia.nombre)
         lista.SetItem(index, ITEM_ITEM, item.item.parent.nombre)
         lista.SetItem(index, ITEM_CANTIDAD, str(item.cantidad))
+        lista.SetItem(index, ITEM_PRECIO, str(item.item.precio[-1].precio))
         lista.SetItemData(index, item.custom_id)
         self.item_client_take_dict[item.custom_id] = item
 

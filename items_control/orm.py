@@ -82,8 +82,8 @@ class Venta(Base):
 
     id = Column(Integer, primary_key=True)
     fecha = Column(DateTime)
-    cantidad = Column(DateTime)
-    precio = Column(Integer)
+    cantidad = Column(Integer)
+    precio = Column(Float)
     invalidada = Column(Boolean)
     observaciones = Column(String)
 
@@ -94,6 +94,11 @@ class Venta(Base):
     # items
     item_id = Column(Integer, ForeignKey('item.id'))
     item = relationship('Item', backref="venta")
+
+    def __init__(self, fecha=datetime.now()):
+        Base.__init__(self)
+        self.fecha = fecha
+        self.invalidada = False
 
     def __repr__(self):
         return "Venta<-%s-,'%s',%s,%s>" % (self.id, self.fecha, self.cantidad, self.precio)
@@ -229,8 +234,16 @@ class Item(Base):
                 last.fecha_fin = datetime.now()
             self.precio.append(precio)
 
+    def getPrecioinDate(self, fecha=datetime.date(datetime.now())):
+        for p in self.precio:
+            if p.fecha_inicio is None or p.fecha_final is None:
+                continue
+            if p.fecha_inicio < fecha < p.fecha_final:
+                return p
+        return self.precio[-1]
+
     def __repr__(self):
-        return "Item<-%s-,'%s'>" % (self.id,self.cantidad)
+        return "Item<-%s-,'%s'>" % (self.id, self.cantidad)
     
 class PrecioVenta(Base):
     __tablename__ = "precio_venta"
@@ -275,14 +288,16 @@ class Cliente(Base):
 
         engine = db.Engine.instance
         with engine.connect() as conn:
-            sql = """ select r1.item_id, (ifnull(r1.total_sal,0) - ifnull(r2.total_dev,0)) as tiene
+            sql = """ select r1.item_id, (ifnull(r1.total_sal,0) - ifnull(r2.total_dev,0) - ifnull(rv.vendido,0)) as tiene
             from (select im.item_id, m.tipo, c.nombre, sum(im.cantidad) as total_sal, m.cliente_id from movimiento as m 
             left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id
             where m.tipo = "SALIDA" and c.id == %d group by im.item_id, m.tipo,m.cliente_id) as r1
             left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id  from movimiento as m
             left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id 
             where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
-            left join item on item.id == r1.item_id;
+            left join item on item.id == r1.item_id          
+            left join (select v.item_id, v.cliente_id, sum(v.cantidad) as vendido from venta as v group by v.item_id) as rv on r1.item_id == rv.item_id
+            where tiene > 0;
                     """ % self.id
 
             results = conn.execute(text(sql))

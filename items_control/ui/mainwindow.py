@@ -15,7 +15,8 @@ from items_control.ui.procedencia_dialog import ProcedenciaDialog
 from items_control.ui.items_dialog import ItemsDialog
 from items_control.ui.itementry import ItemsEntryDialog
 from items_control.ui.movimiento_dialog import MovimientoDialog
-
+from items_control.ui.ventadialog import VentaDialog
+import datetime
 
 class MainWindow(design_wx.MainWindows):
     def __init__(self):
@@ -60,6 +61,12 @@ class MainWindow(design_wx.MainWindows):
         self.item_menu.Enable(enable)
         self.entry_menu.Enable(enable)
         self.mov_submenu.Enable(enable)
+        self.venta_menu.Enable(enable)
+
+    def ventamenu_click(self, event):
+        venta = VentaDialog(self)
+        venta.ShowModal()
+        venta.Destroy()
 
     def create_menu_click(self, event):
         with wx.FileDialog(self, "Selecciona DB", wildcard="Sqlite files (*.sqlite)|*.sqlite",
