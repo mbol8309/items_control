@@ -325,28 +325,25 @@ class Cliente(Base):
 
             return items
 
-        # rs = select([ItemMovido, func.sum(ItemMovido.cantidad)]). \
-        #             where(and_(Movimiento.tipo == TipoMovimiento.SALIDA)).\
-        #             group_by(ItemMovido.item_id, Movimiento.cliente_id)
-
-
-    # select r1.item_id, r1.nombre, r1.cliente_id, r1.total_sal, r2.total_dev, (
-    #             ifnull(r1.total_sal, 0) - ifnull(r2.total_dev, 0)) as tiene
-    # from (select im.item_id, m.tipo, c.nombre, sum(im.cantidad) as total_sal, m.cliente_id
-    # from movimiento as m
-    # left join items_movido as im on  im.movimiento_id == m.id
-    # left join cliente as c on c.id == m.cliente_id
-    # where m.tipo = "SALIDA" group by im.item_id, m.tipo, m.cliente_id) as r1
-    # left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id
-    # from movimiento as m
-    # left join items_movido as im on im.movimiento_id == m.id
-    # left join cliente as c on c.id == m.cliente_id
-    # where m.tipo = "DEVOLUCION"
-    # group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id
-
-    # @staticmethod
-    # def create_table():
-    #     Base.metadata.create_all(engine)
-
     def __repr__(self):
         return "Cliente<-%s-,'%s','%s'>" % (self.id, self.nombre, self.tipo)
+
+
+# ----------------------------------------------GASTOS------------------------------------------------
+class Gasto(Base):
+    """Gatos de viaje"""
+
+    def __init__(self, ):
+        Base.__init__(self)
+
+    __tablename__ = "gasto"
+
+    id = Column(Integer, primary_key=True)
+    procedencia_id = Column(Integer, ForeignKey('procedencia.id'))
+    procedencia = relationship("Procedencia", backref="gastos")
+
+    cantidad = Column(Float)
+    descripcion = Column(String(250))
+
+    def __repr__(self):
+        return "Gasto<-%s-,'%.2f'>" % (self.id, self.cantidad)

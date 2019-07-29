@@ -1,4 +1,4 @@
-from items_control.ui import MainWindow
+from items_control.ui.dialogs import MainWindow
 from six.moves import tkinter as tk
 
 
