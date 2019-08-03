@@ -10,6 +10,7 @@ from items_control import orm
 import datetime
 
 
+
 class MainWindow(design_wx.MainWindows):
     def __init__(self):
         design_wx.MainWindows.__init__(self, None)
@@ -55,6 +56,12 @@ class MainWindow(design_wx.MainWindows):
         self.mov_submenu.Enable(enable)
         self.venta_menu.Enable(enable)
         self.gasto_menu.Enable(enable)
+        self.client_mov_venta.Enable(enable)
+
+    def cliente_mov_venta_click(self, event):
+        cmv = ClienteMovVenta(self)
+        cmv.ShowModal()
+        cmv.Destroy()
 
     def ventamenu_click(self, event):
         venta = VentaDialog(self)
@@ -1383,3 +1390,111 @@ class MovimientoDialog(design_wx.MovementDialog):
                 session.commit()
 
             self.Close()
+
+
+class ClienteMovVenta(design_wx.ClienteMovVenta):
+
+    def __init__(self, parent):
+        design_wx.ClienteMovVenta.__init__(self, parent)
+        self.cliente_cb_dict = {}
+        # self.item_client_has_dict = {}
+        self.cliente_mov_list_dict = {}
+        self.cliente_item_list_dict = {}
+        self.cliente_item_venta_dict = {}
+
+        self._setup_tables()
+        self._Fill_Client_List()
+        self.cliente_change(None)
+
+    def ok_button_click(self, event):
+        self.Close()
+
+    def _setup_tables(self):
+
+        for lista in [self.cliente_item_list, self.cliente_mov_items_list]:
+            lista.ConfigColums(['Articulo', 'Procedencia', 'Cantidad', 'Costo'])
+
+        self.cliente_item_list.SetLambdas([
+            lambda i: i.parent.nombre,
+            lambda i: i.procedencia.nombre,
+            lambda i: str(i.tiene),
+            lambda i: str(i.getPrecioinDate().precio)
+        ])
+
+        self.cliente_mov_items_list.SetLambdas([
+            lambda i: i.item.parent.nombre,
+            lambda i: i.item.procedencia.nombre,
+            lambda i: str(i.cantidad),
+            lambda i: str(i.item.getPrecioinDate().precio)
+        ])
+
+        self.cliente_mov_list.ConfigColums(['Fecha', 'Tipo'])
+        self.cliente_mov_list.SetLambdas([
+            lambda i: str(datetime.datetime.strftime(i.fecha, '%d/%m/%Y')),
+            lambda i: i.tipo.name
+        ])
+
+        self.cliente_venta_list.ConfigColums(["Fecha", "Articulo", "Procedencia", "Cantidad", "Precio"])
+        self.cliente_venta_list.SetLambdas([
+            lambda i: str(datetime.datetime.strftime(i.fecha, '%d/%m/%Y')),
+            lambda v: v.item.parent.nombre,
+            lambda v: v.item.procedencia.nombre,
+            lambda v: str(v.cantidad),
+            lambda v: str('$%.2f' % v.precio)
+        ])
+
+    def _Fill_Client_List(self):
+        session = db.session()
+        clientes = session.query(orm.Cliente).all()
+        for c in clientes:
+            c.custom_id = id(c)
+            index = self.cliente_cb.Append(c.nombre)
+            self.cliente_cb.SetClientData(index, c.custom_id)
+            self.cliente_cb_dict[c.custom_id] = c
+
+        self.cliente_cb.SetSelection(0)
+
+    def Update_Ventas(self):
+        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        session = db.session()
+        ventas = session.query(orm.Venta).filter(orm.Venta.cliente_id == cliente.id). \
+            filter(orm.Venta.fecha >= utils._wxdate2pydate(self.from_date.GetValue())). \
+            filter(orm.Venta.fecha <= utils._wxdate2pydate(self.to_date.GetValue())).all()
+        self.cliente_venta_list.UpdateData(ventas)
+
+    def cliente_change(self, event):
+        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        items = cliente.posession_items()
+        self.cliente_item_list.UpdateData(items)
+        self._update_movs()
+        self.Update_Ventas()
+
+    def _update_movs(self):
+        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        session = db.session()
+        # session = session.object_session(cliente)
+
+        movs = session.query(orm.Movimiento).filter(orm.Movimiento.cliente_id == cliente.id). \
+            filter(orm.Movimiento.fecha > utils._wxdate2pydate(self.from_date.GetValue())). \
+            filter(orm.Movimiento.fecha < utils._wxdate2pydate(self.to_date.GetValue())).all()
+
+        self.cliente_mov_list.UpdateData(movs)
+        self.cliente_mov_items_list.DeleteAllItems()
+
+    def from_date_change(self, event):
+        self._update_movs()
+        self.Update_Ventas()
+
+    def to_date_change(self, event):
+        self._update_movs()
+        self.Update_Ventas()
+
+    def cliente_mov_selected(self, event):
+        index = self.cliente_mov_list.GetFirstSelected()
+        if index == -1:
+            return
+
+        mov = self.cliente_mov_list.GetItem(index)
+        items = mov.items
+        if items is not None and isinstance(items, list):
+            self.cliente_mov_items_list.UpdateData(items)
