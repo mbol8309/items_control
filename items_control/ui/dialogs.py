@@ -1,6 +1,7 @@
 import wx
 from items_control import settings
 import os
+# from items_control.ui.design_wx import  items_control_wx as design_wx
 from items_control.ui.design_wx import items_control_wx as design_wx
 from items_control.ui.dialogs import *
 from items_control import utils

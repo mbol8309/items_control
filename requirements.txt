@@ -1,2 +1,3 @@
-six
-tkinter
+gitpython
+sqlalchemy
+easysettings
