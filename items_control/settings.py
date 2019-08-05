@@ -19,7 +19,8 @@ def get(name):
 settings = EasySettings("settings.conf")
 
 defaults = {
-    'recents': []
+    'recents': [],
+    'update_branch': 'stable'
 }
 
 
