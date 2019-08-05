@@ -1499,3 +1499,45 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
         items = mov.items
         if items is not None and isinstance(items, list):
             self.cliente_mov_items_list.UpdateData(items)
+
+
+from git.remote import RemoteProgress
+
+
+class UpdateDialog(design_wx.UpdateDialog):
+    instance = None
+
+    @staticmethod
+    def Instance():
+        if UpdateDialog.instance is None:
+            UpdateDialog.instance = UpdateDialog()
+        return UpdateDialog.instance
+
+    def __init__(self, parent=None):
+        design_wx.UpdateDialog.__init__(self, parent)
+
+    def setProgress(self, progress):
+        if not isinstance(progress, int):
+            return None
+        self.progress_bar.SetValue(progress)
+        return self
+
+    def setStatus(self, status):
+        self.status_label.SetLabel(status)
+        return self
+
+    @staticmethod
+    def progress(op_code, cur_count, max_count=None, message=''):
+        if UpdateDialog.instance is None:
+            UpdateDialog.Instance().ShowModal()
+
+        if max_count is not None:
+            UpdateDialog.Instance().setStatus('%d / %d restante' % (max_count - cur_count, max_count)). \
+                setProgress(cur_count / max_count * 100)
+        else:
+            UpdateDialog.Instance().setStatus('%d items' % cur_count).setProgress(0)
+
+        if op_code & RemoteProgress.END == 0:
+            UpdateDialog.Instance().Close()
+            UpdateDialog.Instance().Destroy()
+            UpdateDialog.instance = None

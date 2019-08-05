@@ -12,7 +12,6 @@ import wx
 import wx.xrc
 import wx.adv
 
-
 ###########################################################################
 ## Class ClientDataDialog
 ###########################################################################
@@ -89,6 +88,7 @@ class ClientDataDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def okClick(self, event):
         event.Skip()
@@ -153,6 +153,7 @@ class ClientList(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def edit_client_click(self, event):
@@ -263,6 +264,7 @@ class MainWindows(wx.Frame):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def open_menu_click(self, event):
         event.Skip()
@@ -351,6 +353,7 @@ class ProcDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def add_click(self, event):
@@ -441,6 +444,7 @@ class ProcDatosDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def ok_click(self, event):
         event.Skip()
@@ -505,6 +509,7 @@ class ItemsDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def item_clicked(self, event):
@@ -593,6 +598,7 @@ class ItemsDataDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def ok_click(self, event):
@@ -729,6 +735,7 @@ class ItemEntryDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def add_item_button_click(self, event):
         event.Skip()
@@ -789,6 +796,7 @@ class DetailDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def item_activated(self, event):
@@ -914,6 +922,7 @@ class MovementDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def client_cb_change(self, event):
         event.Skip()
@@ -1025,6 +1034,7 @@ class EntityMove(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def ok_button_click(self, event):
@@ -1173,6 +1183,7 @@ class VentaDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def client_cb_change(self, event):
         event.Skip()
@@ -1291,6 +1302,7 @@ class VentaItemDialog(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def cantidad_change_value(self, event):
         event.Skip()
@@ -1388,6 +1400,7 @@ class GastoDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def procedencia_change(self, event):
@@ -1552,3 +1565,46 @@ class ClienteMovVenta(wx.Dialog):
     def m_splitter2OnIdle(self, event):
         self.m_splitter2.SetSashPosition(330)
         self.m_splitter2.Unbind(wx.EVT_IDLE)
+
+
+###########################################################################
+## Class UpdateDialog
+###########################################################################
+
+class UpdateDialog(wx.Dialog):
+
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title=u"Actualizando", pos=wx.DefaultPosition,
+                           size=wx.DefaultSize, style=wx.DEFAULT_DIALOG_STYLE | wx.STAY_ON_TOP)
+
+        self.SetSizeHints(wx.Size(500, 100), wx.DefaultSize)
+
+        bSizer47 = wx.BoxSizer(wx.VERTICAL)
+
+        bSizer48 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.m_staticText46 = wx.StaticText(self, wx.ID_ANY, u"Estado:", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText46.Wrap(-1)
+
+        bSizer48.Add(self.m_staticText46, 0, wx.ALL, 5)
+
+        self.status_label = wx.StaticText(self, wx.ID_ANY, u"Estado", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.status_label.Wrap(-1)
+
+        bSizer48.Add(self.status_label, 1, wx.ALL | wx.EXPAND, 5)
+
+        bSizer47.Add(bSizer48, 0, wx.EXPAND, 5)
+
+        self.progress_bar = wx.Gauge(self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize,
+                                     wx.GA_HORIZONTAL | wx.GA_SMOOTH)
+        self.progress_bar.SetValue(50)
+        bSizer47.Add(self.progress_bar, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.SetSizer(bSizer47)
+        self.Layout()
+        bSizer47.Fit(self)
+
+        self.Centre(wx.BOTH)
+
+    def __del__(self):
+        pass
