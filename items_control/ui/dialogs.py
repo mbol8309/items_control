@@ -1504,6 +1504,10 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
 from git.remote import RemoteProgress
 
 
+class UpdateProgress(RemoteProgress):
+    def update(self, op_code, cur_count, max_count=None, message=''):
+        UpdateDialog.progress(op_code, cur_count, max_count)
+
 class UpdateDialog(design_wx.UpdateDialog):
     instance = None
 
@@ -1527,7 +1531,7 @@ class UpdateDialog(design_wx.UpdateDialog):
         return self
 
     @staticmethod
-    def progress(op_code, cur_count, max_count=None, message=''):
+    def progress(op_code, cur_count, max_count=None):
         if UpdateDialog.instance is None:
             UpdateDialog.Instance().ShowModal()
 

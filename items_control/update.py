@@ -2,7 +2,7 @@ from git import Repo
 import os
 from items_control import settings
 import wx
-from items_control.ui.dialogs import UpdateDialog
+from items_control.ui.dialogs import UpdateDialog, UpdateProgress
 dir_path = os.path.dirname(os.path.realpath(__file__))
 repo = Repo(dir_path + "/../")
 
@@ -35,12 +35,12 @@ def change_branch(branch_name):
 
 
 def check_update():
-    # app = wx.App()
-    # update_ref(UpdateDialog.progress)
-    update_ref()
+    app = wx.App()
+    update_ref(UpdateProgress())
+    # update_ref()
     if need_update():
         if wx.MessageBox('Hay actualizacion disponible. Actualizar?', 'Actualizar',
                          wx.OK | wx.CANCEL | wx.ICON_QUESTION) == wx.OK:
-            # do_update(UpdateDialog.progress)
-            do_update()
-    # app.MainLoop()
+            do_update(UpdateProgress())
+            # do_update()
+    app.MainLoop()
