@@ -20,7 +20,7 @@ settings = EasySettings("settings.conf")
 
 defaults = {
     'recents': [],
-    'update_branch': 'stable'
+    'update_branch': 'master'
 }
 
 
