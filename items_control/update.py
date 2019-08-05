@@ -2,7 +2,7 @@ from git import Repo
 import os
 from items_control import settings
 import wx
-from items_control.ui.dialogs import UpdateDialog, UpdateProgress
+from items_control.ui.dialogs import UpdateDialog, UpdateProgress, UpdateProgress
 dir_path = os.path.dirname(os.path.realpath(__file__))
 repo = Repo(dir_path + "/../")
 
@@ -24,8 +24,8 @@ def need_update():
 
 def do_update(progress=None):
     branch_name = settings.get('update_branch')
-    branch = repo.branches[branch_name]
-    repo.git.pull(progress=progress)
+    origin = repo.remotes.origin
+    origin.pull(progress=progress)
 
 
 def change_branch(branch_name):
