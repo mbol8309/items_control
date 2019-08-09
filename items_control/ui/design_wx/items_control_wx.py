@@ -7,6 +7,7 @@
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
+from items_control.ui.custom_controls import CustomChoice
 from items_control.ui.custom_controls import CustomListCtrl
 import wx
 import wx.xrc
@@ -242,6 +243,16 @@ class MainWindows(wx.Frame):
         self.report_menu.Append(self.client_mov_venta)
         self.client_mov_venta.Enable(False)
 
+        self.procedencia_status_menu = wx.MenuItem(self.report_menu, wx.ID_ANY, u"Estado de Procedencia",
+                                                   wx.EmptyString, wx.ITEM_NORMAL)
+        self.report_menu.Append(self.procedencia_status_menu)
+        self.procedencia_status_menu.Enable(False)
+
+        self.item_tracker_menu = wx.MenuItem(self.report_menu, wx.ID_ANY, u"Rastreo Articulo", wx.EmptyString,
+                                             wx.ITEM_NORMAL)
+        self.report_menu.Append(self.item_tracker_menu)
+        self.item_tracker_menu.Enable(False)
+
         self.m_menubar1.Append(self.report_menu, u"Reportes")
 
         self.SetMenuBar(self.m_menubar1)
@@ -260,6 +271,8 @@ class MainWindows(wx.Frame):
         self.Bind(wx.EVT_MENU, self.ventamenu_click, id=self.venta_menu.GetId())
         self.Bind(wx.EVT_MENU, self.gasto_menu_click, id=self.gasto_menu.GetId())
         self.Bind(wx.EVT_MENU, self.cliente_mov_venta_click, id=self.client_mov_venta.GetId())
+        self.Bind(wx.EVT_MENU, self.procedencia_status_click, id=self.procedencia_status_menu.GetId())
+        self.Bind(wx.EVT_MENU, self.item_tracker_click, id=self.item_tracker_menu.GetId())
 
     def __del__(self):
         pass
@@ -297,6 +310,12 @@ class MainWindows(wx.Frame):
         event.Skip()
 
     def cliente_mov_venta_click(self, event):
+        event.Skip()
+
+    def procedencia_status_click(self, event):
+        event.Skip()
+
+    def item_tracker_click(self, event):
         event.Skip()
 
 
@@ -636,7 +655,7 @@ class ItemEntryDialog(wx.Dialog):
         bSizer15 = wx.BoxSizer(wx.HORIZONTAL)
 
         item_choiceChoices = []
-        self.item_choice = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, item_choiceChoices, 0)
+        self.item_choice = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, item_choiceChoices, 0)
         self.item_choice.SetSelection(0)
         bSizer15.Add(self.item_choice, 1, wx.ALL | wx.EXPAND, 5)
 
@@ -653,7 +672,7 @@ class ItemEntryDialog(wx.Dialog):
         bSizer16 = wx.BoxSizer(wx.HORIZONTAL)
 
         proc_choiceChoices = []
-        self.proc_choice = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, proc_choiceChoices, 0)
+        self.proc_choice = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, proc_choiceChoices, 0)
         self.proc_choice.SetSelection(0)
         bSizer16.Add(self.proc_choice, 1, wx.ALL | wx.EXPAND, 5)
 
@@ -668,7 +687,7 @@ class ItemEntryDialog(wx.Dialog):
         fgSizer5.Add(self.m_staticText14, 0, wx.ALL, 5)
 
         self.cantidad_txt = wx.SpinCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize,
-                                        wx.SP_ARROW_KEYS, 0, 10, 0)
+                                        wx.SP_ARROW_KEYS, 0, 99999, 0)
         fgSizer5.Add(self.cantidad_txt, 0, wx.ALL | wx.EXPAND, 5)
 
         self.m_staticText15 = wx.StaticText(self, wx.ID_ANY, u"Costo", wx.DefaultPosition, wx.DefaultSize, 0)
@@ -696,8 +715,8 @@ class ItemEntryDialog(wx.Dialog):
 
         bSizer13.Add(fgSizer5, 1, wx.ALL | wx.EXPAND, 5)
 
-        self.item_list = wx.ListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                     wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.item_list = CustomListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                        wx.LC_REPORT | wx.LC_SINGLE_SEL)
         self.item_list.SetMinSize(wx.Size(-1, 300))
 
         self.m_menu7 = wx.Menu()
@@ -1442,7 +1461,8 @@ class ClienteMovVenta(wx.Dialog):
         bSizer43.Add(self.m_staticText40, 0, wx.ALL, 5)
 
         cliente_cbChoices = []
-        self.cliente_cb = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, cliente_cbChoices, 0)
+        self.cliente_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, cliente_cbChoices,
+                                       wx.CB_SORT)
         self.cliente_cb.SetSelection(0)
         bSizer43.Add(self.cliente_cb, 1, wx.ALL, 5)
 
@@ -1546,6 +1566,7 @@ class ClienteMovVenta(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def cliente_change(self, event):
         event.Skip()
@@ -1597,7 +1618,7 @@ class UpdateDialog(wx.Dialog):
 
         self.progress_bar = wx.Gauge(self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize,
                                      wx.GA_HORIZONTAL | wx.GA_SMOOTH)
-        self.progress_bar.SetValue(50)
+        self.progress_bar.SetValue(0)
         bSizer47.Add(self.progress_bar, 0, wx.ALL | wx.EXPAND, 5)
 
         self.SetSizer(bSizer47)
@@ -1608,3 +1629,236 @@ class UpdateDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
+
+###########################################################################
+## Class ProcedenciaStatus
+###########################################################################
+
+class ProcedenciaStatus(wx.Dialog):
+
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title=u"Estado de Procedencia", pos=wx.DefaultPosition,
+                           size=wx.Size(454, 313),
+                           style=wx.CAPTION | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER)
+
+        self.SetSizeHints(wx.Size(400, 200), wx.DefaultSize)
+
+        collapsible_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        bSizer50 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.m_staticText48 = wx.StaticText(self, wx.ID_ANY, u"Procedencia", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText48.Wrap(-1)
+
+        bSizer50.Add(self.m_staticText48, 0, wx.ALL, 5)
+
+        procedencia_cbChoices = []
+        self.procedencia_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, procedencia_cbChoices,
+                                           0)
+        self.procedencia_cb.SetSelection(0)
+        bSizer50.Add(self.procedencia_cb, 1, wx.ALL, 5)
+
+        collapsible_sizer.Add(bSizer50, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.m_collapsiblePane1 = wx.CollapsiblePane(self, wx.ID_ANY, u"Stock Vendido", wx.DefaultPosition,
+                                                     wx.DefaultSize, wx.CP_DEFAULT_STYLE | wx.CP_NO_TLW_RESIZE)
+        self.m_collapsiblePane1.Collapse(True)
+
+        bSizer51 = wx.BoxSizer(wx.VERTICAL)
+
+        self.stock_vendido = CustomListCtrl(self.m_collapsiblePane1.GetPane(), wx.ID_ANY, wx.DefaultPosition,
+                                            wx.DefaultSize, wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        bSizer51.Add(self.stock_vendido, 0, wx.ALL | wx.EXPAND, 5)
+
+        bSizer55 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.m_staticText50 = wx.StaticText(self.m_collapsiblePane1.GetPane(), wx.ID_ANY, u"Total:", wx.DefaultPosition,
+                                            wx.DefaultSize, 0)
+        self.m_staticText50.Wrap(-1)
+
+        bSizer55.Add(self.m_staticText50, 0, wx.ALL, 5)
+
+        self.stock_vendido_label = wx.StaticText(self.m_collapsiblePane1.GetPane(), wx.ID_ANY, u"$ 0.00",
+                                                 wx.DefaultPosition, wx.DefaultSize, 0)
+        self.stock_vendido_label.Wrap(-1)
+
+        bSizer55.Add(self.stock_vendido_label, 0, wx.ALL, 5)
+
+        bSizer51.Add(bSizer55, 0, wx.EXPAND, 5)
+
+        self.m_collapsiblePane1.GetPane().SetSizer(bSizer51)
+        self.m_collapsiblePane1.GetPane().Layout()
+        bSizer51.Fit(self.m_collapsiblePane1.GetPane())
+        collapsible_sizer.Add(self.m_collapsiblePane1, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.m_collapsiblePane2 = wx.CollapsiblePane(self, wx.ID_ANY, u"Stock en Clientes", wx.DefaultPosition,
+                                                     wx.DefaultSize, wx.CP_DEFAULT_STYLE | wx.CP_NO_TLW_RESIZE)
+        self.m_collapsiblePane2.Collapse(True)
+
+        bSizer54 = wx.BoxSizer(wx.VERTICAL)
+
+        self.stock_cliente = CustomListCtrl(self.m_collapsiblePane2.GetPane(), wx.ID_ANY, wx.DefaultPosition,
+                                            wx.DefaultSize, wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        bSizer54.Add(self.stock_cliente, 0, wx.ALL | wx.EXPAND, 5)
+
+        bSizer56 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.m_staticText52 = wx.StaticText(self.m_collapsiblePane2.GetPane(), wx.ID_ANY, u"Total:", wx.DefaultPosition,
+                                            wx.DefaultSize, 0)
+        self.m_staticText52.Wrap(-1)
+
+        bSizer56.Add(self.m_staticText52, 0, wx.ALL, 5)
+
+        self.stock_cliente_label = wx.StaticText(self.m_collapsiblePane2.GetPane(), wx.ID_ANY, u"$ 0.00",
+                                                 wx.DefaultPosition, wx.DefaultSize, 0)
+        self.stock_cliente_label.Wrap(-1)
+
+        bSizer56.Add(self.stock_cliente_label, 0, wx.ALL, 5)
+
+        bSizer54.Add(bSizer56, 1, wx.EXPAND, 5)
+
+        self.m_collapsiblePane2.GetPane().SetSizer(bSizer54)
+        self.m_collapsiblePane2.GetPane().Layout()
+        bSizer54.Fit(self.m_collapsiblePane2.GetPane())
+        collapsible_sizer.Add(self.m_collapsiblePane2, 0, wx.EXPAND | wx.ALL, 5)
+
+        self.m_collapsiblePane3 = wx.CollapsiblePane(self, wx.ID_ANY, u"Stock local", wx.DefaultPosition,
+                                                     wx.DefaultSize, wx.CP_DEFAULT_STYLE | wx.CP_NO_TLW_RESIZE)
+        self.m_collapsiblePane3.Collapse(True)
+
+        bSizer57 = wx.BoxSizer(wx.VERTICAL)
+
+        self.stock_local = CustomListCtrl(self.m_collapsiblePane3.GetPane(), wx.ID_ANY, wx.DefaultPosition,
+                                          wx.DefaultSize, wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        bSizer57.Add(self.stock_local, 0, wx.ALL | wx.EXPAND, 5)
+
+        bSizer58 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.m_staticText55 = wx.StaticText(self.m_collapsiblePane3.GetPane(), wx.ID_ANY, u"Total:", wx.DefaultPosition,
+                                            wx.DefaultSize, 0)
+        self.m_staticText55.Wrap(-1)
+
+        bSizer58.Add(self.m_staticText55, 0, wx.ALL, 5)
+
+        self.stock_local_label = wx.StaticText(self.m_collapsiblePane3.GetPane(), wx.ID_ANY, u"$ 0.00",
+                                               wx.DefaultPosition, wx.DefaultSize, 0)
+        self.stock_local_label.Wrap(-1)
+
+        bSizer58.Add(self.stock_local_label, 0, wx.ALL, 5)
+
+        bSizer57.Add(bSizer58, 1, wx.EXPAND, 5)
+
+        self.m_collapsiblePane3.GetPane().SetSizer(bSizer57)
+        self.m_collapsiblePane3.GetPane().Layout()
+        bSizer57.Fit(self.m_collapsiblePane3.GetPane())
+        collapsible_sizer.Add(self.m_collapsiblePane3, 0, wx.EXPAND | wx.ALL, 5)
+
+        bSizer59 = wx.BoxSizer(wx.VERTICAL)
+
+        self.ok_button = wx.Button(self, wx.ID_ANY, u"OK", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer59.Add(self.ok_button, 0, wx.ALL, 5)
+
+        collapsible_sizer.Add(bSizer59, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+        self.SetSizer(collapsible_sizer)
+        self.Layout()
+
+        self.Centre(wx.BOTH)
+
+        # Connect Events
+        self.procedencia_cb.Bind(wx.EVT_CHOICE, self.procedencia_change)
+        self.m_collapsiblePane1.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.collapsible_pane_changed)
+        self.m_collapsiblePane2.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.collapsible_pane_changed)
+        self.m_collapsiblePane3.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.collapsible_pane_changed)
+        self.ok_button.Bind(wx.EVT_BUTTON, self.ok_button_click)
+
+    def __del__(self):
+        pass
+
+    # Virtual event handlers, overide them in your derived class
+    def procedencia_change(self, event):
+        event.Skip()
+
+    def collapsible_pane_changed(self, event):
+        event.Skip()
+
+    def ok_button_click(self, event):
+        event.Skip()
+
+
+###########################################################################
+## Class ItemTrackerDialog
+###########################################################################
+
+class ItemTrackerDialog(wx.Dialog):
+
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title=u"Rastreo de Articulos", pos=wx.DefaultPosition,
+                           size=wx.DefaultSize, style=wx.DEFAULT_DIALOG_STYLE)
+
+        self.SetSizeHints(wx.Size(400, 200), wx.DefaultSize)
+
+        bSizer58 = wx.BoxSizer(wx.VERTICAL)
+
+        fgSizer7 = wx.FlexGridSizer(0, 2, 0, 0)
+        fgSizer7.AddGrowableCol(1)
+        fgSizer7.SetFlexibleDirection(wx.BOTH)
+        fgSizer7.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
+
+        self.m_staticText55 = wx.StaticText(self, wx.ID_ANY, u"Procedencia", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText55.Wrap(-1)
+
+        fgSizer7.Add(self.m_staticText55, 0, wx.ALL, 5)
+
+        procedencia_cbChoices = []
+        self.procedencia_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, procedencia_cbChoices,
+                                           0)
+        self.procedencia_cb.SetSelection(0)
+        fgSizer7.Add(self.procedencia_cb, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.m_staticText56 = wx.StaticText(self, wx.ID_ANY, u"Articulo", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText56.Wrap(-1)
+
+        fgSizer7.Add(self.m_staticText56, 0, wx.ALL, 5)
+
+        article_cbChoices = []
+        self.article_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, article_cbChoices, 0)
+        self.article_cb.SetSelection(0)
+        fgSizer7.Add(self.article_cb, 0, wx.ALL | wx.EXPAND, 5)
+
+        bSizer58.Add(fgSizer7, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.show_button = wx.Button(self, wx.ID_ANY, u"Buscar", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer58.Add(self.show_button, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        self.item_list = CustomListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                        wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        bSizer58.Add(self.item_list, 0, wx.ALL | wx.EXPAND, 5)
+
+        self.ok_button = wx.Button(self, wx.ID_ANY, u"OK", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer58.Add(self.ok_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+        self.SetSizer(bSizer58)
+        self.Layout()
+        bSizer58.Fit(self)
+
+        self.Centre(wx.BOTH)
+
+        # Connect Events
+        self.procedencia_cb.Bind(wx.EVT_CHOICE, self.procedencia_change)
+        self.show_button.Bind(wx.EVT_BUTTON, self.show_button_click)
+        self.ok_button.Bind(wx.EVT_BUTTON, self.ok_button_click)
+
+    def __del__(self):
+        pass
+
+    # Virtual event handlers, overide them in your derived class
+    def procedencia_change(self, event):
+        event.Skip()
+
+    def show_button_click(self, event):
+        event.Skip()
+
+    def ok_button_click(self, event):
+        event.Skip()

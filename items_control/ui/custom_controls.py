@@ -1,8 +1,46 @@
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
+from wx.lib.mixins.listctrl import ColumnSorterMixin
 import wx
 
 
 # custom classess
+
+class CustomChoice(wx.Choice):
+    def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
+                 size=wx.DefaultSize, choices=[], style=0):
+        wx.Choice.__init__(self, parent, id, pos, size, choices, style)
+
+        self.custom_item_id = {}
+        self.function = None
+
+    def SetLambda(self, l):
+        self.function = l
+
+    def UpdateData(self, data):
+        if not isinstance(data, list):
+            return None
+        self.Clear()
+        self.custom_item_id = {}
+        for d in data:
+            d.custom_id = id(d)
+            index = self.Append(self.function(d))
+            self.SetClientData(index, d.custom_id)
+            self.custom_item_id[d.custom_id] = d
+        self.SetSelection(0)
+
+    def GetItems(self):
+        result = []
+        for i in self.custom_item_id:
+            result.append(self.custom_item_id[i])
+        return result
+
+    def GetItem(self, index):
+        if index >= 0 and index < self.GetCount():
+            return self.custom_item_id[self.GetClientData(index)]
+        return None
+
+    def GetActiveItem(self):
+        return self.custom_item_id[self.GetClientData(self.GetSelection())]
 
 class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
     def __init__(self, parent, ID, pos=wx.DefaultPosition,
@@ -15,8 +53,10 @@ class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
         self.custom_item_id = {}
         self.data = None
 
-    def ConfigColums(self, columns):
+    def ConfigColumns(self, columns):
         self.custom_colums = columns
+
+        # ColumnSorterMixin.__init__(self, len(columns))
         self.DeleteAllColumns()
 
         idx = 0
@@ -31,14 +71,14 @@ class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
         for i in range(0, num_col):
             self.SetColumnWidth(i, col_width)
 
-    def SetData(self, data, functions):
-        if not isinstance(data, list) or not isinstance(functions, list) \
-                or not len(functions) == self.GetColumnCount():
-            return None
-
-        # self.data = data
-        self.functions = functions
-        self.UpdateData(data)
+    # def SetData(self, data, functions):
+    #     if not isinstance(data, list) or not isinstance(functions, list) \
+    #             or not len(functions) == self.GetColumnCount():
+    #         return None
+    #
+    #     # self.data = data
+    #     self.functions = functions
+    #     self.UpdateData(data)
 
     def SetLambdas(self, functions):
         if not isinstance(functions, list) \
@@ -66,7 +106,23 @@ class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
             self.custom_item_id[d.custom_id] = d
             idx += 1
 
+    def AppendData(self, item):
+        index = self.GetItemCount()
+        item.custom_id = id(item)
+        functions = self.functions
+        index = self.InsertItem(index, functions[0](item))
+        for f in range(1, len(functions)):
+            self.SetItem(index, f, functions[f](item))
+        self.SetItemData(index, item.custom_id)
+        self.custom_item_id[item.custom_id] = item
+
     def GetItem(self, index):
         if index >= 0 and index < self.GetItemCount():
             return self.custom_item_id[self.GetItemData(index)]
         return None
+
+    def GetItems(self):
+        result = []
+        for i in self.custom_item_id:
+            result.append(self.custom_item_id[i])
+        return result

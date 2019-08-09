@@ -58,6 +58,18 @@ class MainWindow(design_wx.MainWindows):
         self.venta_menu.Enable(enable)
         self.gasto_menu.Enable(enable)
         self.client_mov_venta.Enable(enable)
+        self.procedencia_status_menu.Enable(enable)
+        self.item_tracker_menu.Enable(enable)
+
+    def item_tracker_click(self, event):
+        it = ItemTrackerDialog(self)
+        it.ShowModal()
+        it.Destroy()
+
+    def procedencia_status_click(self, event):
+        p = ProcedenciaStatus(self)
+        p.ShowModal()
+        p.Destroy()
 
     def cliente_mov_venta_click(self, event):
         cmv = ClienteMovVenta(self)
@@ -71,7 +83,7 @@ class MainWindow(design_wx.MainWindows):
 
     def create_menu_click(self, event):
         with wx.FileDialog(self, "Selecciona DB", wildcard="Sqlite files (*.sqlite)|*.sqlite",
-                           style=wx.FD_OPEN | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+                           style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return  # the user changed their mind
 
@@ -81,6 +93,7 @@ class MainWindow(design_wx.MainWindows):
             #                                         filetypes=(("Sqlite files", "*.sqlite"), ("all files", "*.*")))
             # if len(filename) > 0:
             db.create_db(filename)
+            self._enable_menus()
 
     def entry_menu_click(self, event):
         ie = ItemsEntryDialog(self)
@@ -114,10 +127,10 @@ class MainWindow(design_wx.MainWindows):
 
     @staticmethod
     def create():
-        app = wx.App()
+        # app = wx.App()
         main = MainWindow()
         main.Show()
-        app.MainLoop()
+        # app.MainLoop()
 
 
 GASTO_CANTIDAD, GASTO_DESCRIPCION = range(2)
@@ -715,80 +728,69 @@ class DetailDialog(design_wx.DetailDialog):
         d.Destroy()
 
 
-C_PROC, C_ITEM, C_CANT, C_COST, C_PRECIO = range(5)
-
-
-# class ItemsEntryListItem(wx.ListItem):
-#     def __init__(self, parent=None):
-
-
 class ItemsEntryDialog(design_wx.ItemEntryDialog):
     def __init__(self, parent):
         design_wx.ItemEntryDialog.__init__(self, parent)
-        self.session = db.session()
-        self.procedencias = None
-        self.itemsp = None
+        self.session = db.getScopedSession()
 
+        self._config_control()
         self._fill_items()
         self._fill_proc()
-        self._config_table()
         self.entry_items_dict = {}
 
-    def _config_table(self):
-        self.item_list.InsertColumn(C_PROC, "Procedencia")
-        self.item_list.InsertColumn(C_ITEM, "Item")
-        self.item_list.InsertColumn(C_CANT, "Cantidad")
-        self.item_list.InsertColumn(C_COST, "Costo")
-        self.item_list.InsertColumn(C_PRECIO, "Precio")
+    def _config_control(self):
+        self.item_list.ConfigColumns(["Procedencia", "Item", "Cantidad", "Costo", "Precio"])
+        self.item_list.SetLambdas([
+            lambda i: i.procedencia.nombre,
+            lambda i: i.parent.nombre,
+            lambda i: str(i.cantidad),
+            lambda i: "$ %.2f" % i.costo,
+            lambda i: "$ %.2f" % i.getPrecioinDate().precio
+        ])
+        self.proc_choice.SetLambda(lambda p: p.nombre)
+        self.item_choice.SetLambda(lambda i: "%s [%s]" % (i.nombre, i.marca))
 
-    def _get_selected_item(self):
-        index = self.item_choice.GetSelection()
-        if index == -1:
-            return None
-        return self.itemdict[index]
-
-    def _get_selected_proc(self):
-        index = self.proc_choice.GetSelection()
-        if index == -1:
-            return None
-        return self.proc_dict[index]
+    # def _get_selected_item(self):
+    #     index = self.item_choice.GetSelection()
+    #     if index == -1:
+    #         return None
+    #     return self.itemdict[index]
+    #
+    # def _get_selected_proc(self):
+    #     index = self.proc_choice.GetSelection()
+    #     if index == -1:
+    #         return None
+    #     return self.proc_dict[index]
 
     def _fill_proc(self):
-        self.proc_choice.Clear()
-        self.procedencias = self.session.query(orm.Procedencia).all()
-        self.proc_choice.Clear()
-        self.proc_dict = {}
-        for p in self.procedencias:
-            index = self.proc_choice.Append(p.nombre)
-            self.proc_dict[index] = p
-        self.proc_choice.SetSelection(0)
+        session = self.session  # db.getScopedSession()
+        procedencias = session.query(orm.Procedencia).all()
+        self.proc_choice.UpdateData(procedencias)
+
 
     def _fill_items(self):
-        self.item_choice.Clear()
-        self.itemsp = self.session.query(orm.ItemPadre).all()
-        self.item_choice.Clear()
-        self.itemdict = {}
-        for i in self.itemsp:
-            index = self.item_choice.Append("%s [%s]" % (i.nombre, i.marca))
-            self.itemdict[index] = i
-        self.item_choice.SetSelection(0)
+        session = self.session  # db.getScopedSession()
+        itemsp = session.query(orm.ItemPadre).all()
+        self.item_choice.UpdateData(itemsp)
 
     def _reset_values(self):
         self.cost_txt.SetValue(0)
         self.price_txt.SetValue(0)
         self.cantidad_txt.SetValue(0)
 
-    def _insert_item(self, item):
+    # def _insert_item(self, item):
+    #
+    #     self.item_list.AppendData(item)
 
-        count = self.item_list.GetItemCount()
-        item.custom_id = id(item)
-        index = self.item_list.InsertItem(count, item.procedencia.nombre)
-        self.item_list.SetItem(index, C_ITEM, item.parent.nombre)
-        self.item_list.SetItem(index, C_CANT, str(item.cantidad))
-        self.item_list.SetItem(index, C_COST, str(item.costo))
-        self.item_list.SetItem(index, C_PRECIO, str(item.precio[-1].precio))
-        self.item_list.SetItemData(index, item.custom_id)
-        self.entry_items_dict[item.custom_id] = item
+    # count = self.item_list.GetItemCount()
+    # item.custom_id = id(item)
+    # index = self.item_list.InsertItem(count, item.procedencia.nombre)
+    # self.item_list.SetItem(index, C_ITEM, item.parent.nombre)
+    # self.item_list.SetItem(index, C_CANT, str(item.cantidad))
+    # self.item_list.SetItem(index, C_COST, str(item.costo))
+    # self.item_list.SetItem(index, C_PRECIO, str(item.precio[-1].precio))
+    # self.item_list.SetItemData(index, item.custom_id)
+    # self.entry_items_dict[item.custom_id] = item
 
     def add_click(self, event):
         for i in [self.cantidad_txt, self.cost_txt, self.price_txt]:
@@ -797,20 +799,24 @@ class ItemsEntryDialog(design_wx.ItemEntryDialog):
                 wx.MessageBox("Debe llenar los datos!!", "Datos", wx.OK | wx.ICON_EXCLAMATION)
                 return
 
+        session = self.session  # db.getScopedSession()
         newitem = orm.Item()
-        newitem.parent = self._get_selected_item()
-        newitem.procedencia = self._get_selected_proc()
+
+        newitem.parent = session.query(orm.ItemPadre).filter(
+            orm.ItemPadre.id == self.item_choice.GetActiveItem().id).one()
+        newitem.procedencia = session.query(orm.Procedencia).filter(
+            orm.Procedencia.id == self.proc_choice.GetActiveItem().id).one()
         newitem.cantidad = self.cantidad_txt.GetValue()
         newitem.costo = self.cost_txt.GetValue()
         precio_t = self.price_txt.GetValue()
 
-        newitem.precio.append(orm.PrecioVenta.newPrecio(precio_t))
+        newitem.addPrecio(precio_t)
 
-        self._insert_item(newitem)
+        self.item_list.AppendData(newitem)
         self._reset_values()
 
     def add_item_button_click(self, event):
-        idd = ItemsDataDialog(self)
+        idd = ItemsDataDialog(self, session=self.session)
         result = idd.ShowModal()
         if result == ITEM_OK:
             self._fill_items()
@@ -837,9 +843,15 @@ class ItemsEntryDialog(design_wx.ItemEntryDialog):
         self.item_list.DeleteItem(index)
 
     def ok_click(self, event):
-        for i in self.entry_items_dict:
-            self.session.add(self.entry_items_dict[i])
-        self.session.commit()
+
+        session = self.session  # db.getScopedSession()
+        items = self.item_list.GetItems()
+        for i in items:
+            # session = session.object_session(i)
+            session.add(i)
+            # session.commit()
+        # session.bulk_save_objects(items)
+        session.commit()
         self.Close()
 
 
@@ -943,12 +955,9 @@ class ItemsDataDialog(design_wx.ItemsDataDialog):
         item.marca = self.marca_txt.GetValue()
         # item.foto = self.photo_txt.GetValue()
 
-        if self.session is not None:
-            session = self.session
-        else:
-            session = db.session()
+        session = self.session  # db.session()
+        if self.item is None:
             session.add(item)
-
         session.commit()
 
         self.EndModal(ITEM_OK)
@@ -1033,7 +1042,7 @@ class ProcedenciaDataDialog(design_wx.ProcDatosDialog):
     def __init__(self, parent=None, procedencia=None, session=None):
         design_wx.ProcDatosDialog.__init__(self, parent)
         self.procedencia = procedencia
-        self.session = session
+        # self.session = session
         if procedencia is not None:
             self.FillUserData()
 
@@ -1062,9 +1071,7 @@ class ProcedenciaDataDialog(design_wx.ProcDatosDialog):
 
         if self.procedencia is None:
             session.add(procedencia)
-            session.commit()
-        else:
-            self.session.commit()
+        session.commit()
 
         self.EndModal(PROCEDENCIA_OK)
         self.Close()
@@ -1397,23 +1404,25 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
 
     def __init__(self, parent):
         design_wx.ClienteMovVenta.__init__(self, parent)
-        self.cliente_cb_dict = {}
-        # self.item_client_has_dict = {}
-        self.cliente_mov_list_dict = {}
-        self.cliente_item_list_dict = {}
-        self.cliente_item_venta_dict = {}
+        # self.cliente_cb_dict = {}
+        # # self.item_client_has_dict = {}
+        # self.cliente_mov_list_dict = {}
+        # self.cliente_item_list_dict = {}
+        # self.cliente_item_venta_dict = {}
 
-        self._setup_tables()
+        self._setup_controls()
         self._Fill_Client_List()
         self.cliente_change(None)
 
     def ok_button_click(self, event):
         self.Close()
 
-    def _setup_tables(self):
+    def _setup_controls(self):
+
+        self.cliente_cb.SetLambda(lambda c: c.nombre)
 
         for lista in [self.cliente_item_list, self.cliente_mov_items_list]:
-            lista.ConfigColums(['Articulo', 'Procedencia', 'Cantidad', 'Costo'])
+            lista.ConfigColumns(['Articulo', 'Procedencia', 'Cantidad', 'Costo'])
 
         self.cliente_item_list.SetLambdas([
             lambda i: i.parent.nombre,
@@ -1429,13 +1438,13 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
             lambda i: str(i.item.getPrecioinDate().precio)
         ])
 
-        self.cliente_mov_list.ConfigColums(['Fecha', 'Tipo'])
+        self.cliente_mov_list.ConfigColumns(['Fecha', 'Tipo'])
         self.cliente_mov_list.SetLambdas([
             lambda i: str(datetime.datetime.strftime(i.fecha, '%d/%m/%Y')),
             lambda i: i.tipo.name
         ])
 
-        self.cliente_venta_list.ConfigColums(["Fecha", "Articulo", "Procedencia", "Cantidad", "Precio"])
+        self.cliente_venta_list.ConfigColumns(["Fecha", "Articulo", "Procedencia", "Cantidad", "Precio"])
         self.cliente_venta_list.SetLambdas([
             lambda i: str(datetime.datetime.strftime(i.fecha, '%d/%m/%Y')),
             lambda v: v.item.parent.nombre,
@@ -1447,16 +1456,11 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
     def _Fill_Client_List(self):
         session = db.session()
         clientes = session.query(orm.Cliente).all()
-        for c in clientes:
-            c.custom_id = id(c)
-            index = self.cliente_cb.Append(c.nombre)
-            self.cliente_cb.SetClientData(index, c.custom_id)
-            self.cliente_cb_dict[c.custom_id] = c
+        self.cliente_cb.UpdateData(clientes)
 
-        self.cliente_cb.SetSelection(0)
 
     def Update_Ventas(self):
-        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        cliente = self.cliente_cb.GetActiveItem()
         session = db.session()
         ventas = session.query(orm.Venta).filter(orm.Venta.cliente_id == cliente.id). \
             filter(orm.Venta.fecha >= utils._wxdate2pydate(self.from_date.GetValue())). \
@@ -1464,14 +1468,14 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
         self.cliente_venta_list.UpdateData(ventas)
 
     def cliente_change(self, event):
-        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        cliente = self.cliente_cb.GetActiveItem()
         items = cliente.posession_items()
         self.cliente_item_list.UpdateData(items)
         self._update_movs()
         self.Update_Ventas()
 
     def _update_movs(self):
-        cliente = self.cliente_cb_dict[self.cliente_cb.GetClientData(self.cliente_cb.GetSelection())]
+        cliente = self.cliente_cb.GetActiveItem()
         session = db.session()
         # session = session.object_session(cliente)
 
@@ -1496,6 +1500,8 @@ class ClienteMovVenta(design_wx.ClienteMovVenta):
             return
 
         mov = self.cliente_mov_list.GetItem(index)
+        session = db.session()
+        mov = session.query(orm.Movimiento).filter(orm.Movimiento.id == mov.id).one()
         items = mov.items
         if items is not None and isinstance(items, list):
             self.cliente_mov_items_list.UpdateData(items)
@@ -1505,8 +1511,30 @@ from git.remote import RemoteProgress
 
 
 class UpdateProgress(RemoteProgress):
+
+    def __init__(self):
+        RemoteProgress.__init__(self)
+        self.progress = UpdateDialog()
+        self.progress.setProgress(0)
+        self.progress.Show()
+
     def update(self, op_code, cur_count, max_count=None, message=''):
-        UpdateDialog.progress(op_code, cur_count, max_count)
+
+        if max_count is not None:
+            self.progress.setStatus('%d / %d restante' % (max_count - cur_count, max_count)). \
+                setProgress(cur_count / max_count * 100)
+        else:
+            self.progress.setStatus('%d items' % cur_count).setProgress(0)
+
+        if op_code & RemoteProgress.END == 0:
+            self.progress.Close()
+            self.progress.Destroy()
+
+    def __del__(self):
+        self.progress.Close()
+        self.progress.Destroy()
+
+
 
 class UpdateDialog(design_wx.UpdateDialog):
     instance = None
@@ -1545,3 +1573,122 @@ class UpdateDialog(design_wx.UpdateDialog):
             UpdateDialog.Instance().Close()
             UpdateDialog.Instance().Destroy()
             UpdateDialog.instance = None
+
+
+class ProcedenciaStatus(design_wx.ProcedenciaStatus):
+    def __init__(self, parent):
+        design_wx.ProcedenciaStatus.__init__(self, parent)
+
+        self._setup_controls()
+        self._fill_procedencia()
+
+    def collapsible_pane_changed(self, event):
+        event.EventObject.GetParent().Layout()
+        self.Layout()
+
+    def _setup_controls(self):
+
+        self.procedencia_cb.SetLambda(lambda p: p.nombre)
+
+        self.stock_vendido.ConfigColumns(['Fecha', 'Articulo', 'Cantidad', "Precio"])
+        self.stock_vendido.SetLambdas([
+            lambda v: str(datetime.datetime.strftime(v.fecha, '%d/%m/%Y')),
+            lambda v: "%s [%s]" % (v.item.parent.nombre, v.item.parent.marca),
+            lambda v: str(v.cantidad),
+            lambda v: "$ %.2f" % v.precio
+        ])
+
+        self.stock_cliente.ConfigColumns(['Cliente', 'Articulo', 'Cantidad', 'Precio'])
+        self.stock_cliente.SetLambdas([
+            lambda i: i.cliente.nombre,
+            lambda i: "%s [%s]" % (i.item.parent.nombre, i.item.parent.marca),
+            lambda i: str(i.tiene),
+            lambda i: "$ %.2f" % i.item.getPrecioinDate().precio
+        ])
+
+        self.stock_local.ConfigColumns(['Articulo', 'Cantidad', 'Precio'])
+        self.stock_local.SetLambdas([
+            lambda i: "%s [%s]" % (i.parent.nombre, i.parent.marca),
+            lambda i: str(i.restantes),
+            lambda i: "$ %.2f" % i.getPrecioinDate().precio
+        ])
+
+    def _fill_procedencia(self):
+        session = db.session()
+        ps = session.query(orm.Procedencia).all()
+        self.procedencia_cb.UpdateData(ps)
+        self.procedencia_change(None)
+
+    def ok_button_click(self, event):
+        self.Close()
+
+    def procedencia_change(self, event):
+        ps = self.procedencia_cb.GetActiveItem()
+        session = db.session()
+
+        item_left = session.query(orm.Item).filter(orm.Item.procedencia_id == ps.id).all()
+        self.stock_local.UpdateData(item_left)
+        total = 0.0
+        for i in item_left:
+            total += i.getPrecioinDate().precio
+        self.stock_local_label.SetLabel("$ %.2f" % total)
+
+        item_vendidos = session.query(orm.Venta).filter(orm.Item.procedencia_id == ps.id). \
+            filter(orm.Venta.item_id == orm.Item.id).all()
+        self.stock_vendido.UpdateData(item_vendidos)
+        total = 0.0
+        for i in item_vendidos:
+            total += i.precio
+        self.stock_vendido_label.SetLabel("$ %.2f" % total)
+
+        itemxclient = orm.Item.getItemsByClient(ps.id)
+        self.stock_cliente.UpdateData(itemxclient)
+        total = 0.0
+        for i in itemxclient:
+            total += i.item.getPrecioinDate().precio
+        self.stock_cliente_label.SetLabel("$ %.2f" % total)
+
+
+class ItemTrackerDialog(design_wx.ItemTrackerDialog):
+    def __init__(self, parent):
+        design_wx.ItemTrackerDialog.__init__(self, parent)
+
+        self._setup_controls()
+        self._fill_procedencia()
+
+    def _setup_controls(self):
+        self.procedencia_cb.SetLambda(lambda p: p.nombre)
+        self.article_cb.SetLambda(lambda a: "%s (%s) [%d]" % (a.parent.nombre, a.parent.marca, a.cantidad))
+
+        self.item_list.ConfigColumns(['Fecha', 'Evento', 'Cantidad', 'Cliente', 'Valor'])
+        self.item_list.SetLambdas([
+            lambda r: str(datetime.datetime.strftime(r.fecha, '%d/%m/%Y')),
+            lambda r: r.tipo,
+            lambda r: str(r.cantidad),
+            lambda r: r.cliente.nombre,
+            lambda r: "$ %.2f" % r.valor
+        ])
+
+    def procedencia_change(self, event):
+        self._fill_article()
+
+    def _fill_procedencia(self):
+        session = db.session()
+        ps = session.query(orm.Procedencia).all()
+        self.procedencia_cb.UpdateData(ps)
+        self._fill_article()
+
+    def _fill_article(self):
+        p = self.procedencia_cb.GetActiveItem()
+        session = db.session()
+        articles = session.query(orm.Item).filter(orm.Item.procedencia_id == p.id).all()
+        self.article_cb.UpdateData(articles)
+        self.item_list.DeleteAllItems()
+
+    def ok_button_click(self, event):
+        self.Close()
+
+    def show_button_click(self, event):
+        item = self.article_cb.GetActiveItem()
+        results = item.getTracker()
+        self.item_list.UpdateData(results)

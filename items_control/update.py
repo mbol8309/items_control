@@ -35,7 +35,7 @@ def change_branch(branch_name):
 
 
 def check_update():
-    app = wx.App()
+    # app = wx.App()
     update_ref(UpdateProgress())
     # update_ref()
     if need_update():
@@ -43,4 +43,4 @@ def check_update():
                          wx.OK | wx.CANCEL | wx.ICON_QUESTION) == wx.OK:
             do_update(UpdateProgress())
             # do_update()
-    app.MainLoop()
+    # app.MainLoop()

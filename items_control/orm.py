@@ -174,16 +174,6 @@ class Item(Base):
     #movimientos
     movimientos = relationship('ItemMovido', backref="item")
 
-    # select *, (cantidad - ifnull(salidas,0) + ifnull(entradas,0)) as resultante from item left join
-    # (select im.item_id as id1, ifnull(sum(cantidad),0) as salidas from items_movido as im
-    # left join movimiento as m on m.id = im.movimiento_id where m.tipo == 'SALIDA' group by im.item_id)
-    # as r1 on item.id = r1.id1 left join
-    # (select im.item_id as id2, ifnull(sum(cantidad),0) as entradas from items_movido as im left join
-    # movimiento as m on m.id = im.movimiento_id where m.tipo == 'DEVOLUCION' group by im.item_id) as r2 on r1.id1 = r2.id2
-
-    # salidas = alias(func.sum(ItemMovido.cantidad))
-    # entradas = alias(func.sum(ItemMovido.cantidad))
-
     salidas = column_property(select([func.ifnull(func.sum(ItemMovido.cantidad), 0)]).
                               where(and_(Movimiento.tipo == TipoMovimiento.SALIDA,
                                          ItemMovido.item_id == id,
@@ -200,23 +190,85 @@ class Item(Base):
 
     restantes = column_property(cantidad - salidas + devoluciones - vendidos)
 
-    # outerjoin(ItemMovido, ItemMovido.item_id == id).
-    # outerjoin(Movimiento, ItemMovido.movimiento_id == Movimiento.id).label('salidas')
-    # )
+    @hybrid_method
+    def getTracker(self):
+        engine = db.Engine.instance
+        with engine.connect() as conn:
+            sql = """
+            select im.item_id, cantidad, m.tipo, m.fecha, "MOVIMIENTO" as evento , m.cliente_id, rv.precio from items_movido as im 
+            left join movimiento as m on m.id == im.movimiento_id
+            left join (select pv.item_id, pv.precio, m.id from precio_venta as pv 
+            left join items_movido im on im.item_id = pv.item_id
+            left join movimiento as m on m.id == im.movimiento_id and m.fecha between pv.fecha_inicio and ifnull(pv.fecha_final,'2999-12-31'))
+             as rv on rv.item_id == im.item_id and rv.id == m.id where im.item_id==%d
+            union
+            select item_id, cantidad, "NONE", fecha, "VENTA", cliente_id, precio from venta as v where v.item_id==%d
+            order by fecha
+            
+            """ % (self.id, self.id)
 
-    # r_salida = alias(select([ItemMovido, func.sum(ItemMovido.cantidad).label('salidas')]).
-    #                  where(Movimiento.tipo == TipoMovimiento.SALIDA).group_by(ItemMovido.id).
-    #                  outerjoin(Movimiento, Movimiento.id == ItemMovido.movimiento_id))
-    #
-    # r_devolucion = alias(select([ItemMovido, func.sum(ItemMovido.cantidad).label('entradas')]).
-    #                      where(Movimiento.tipo == TipoMovimiento.DEVOLUCION).group_by(ItemMovido.id).
-    #                      outerjoin(Movimiento, Movimiento.id == ItemMovido.movimiento_id))
-    #
-    #
-    # #atributos para saber los restantes
-    # restantes = column_property(select([cantidad]).
-    #     outerjoin(r_salida, id == r_salida.c.item_id).
-    #     outerjoin(r_devolucion, id == r_devolucion.c.item_id))
+            results = conn.execute(text(sql))
+            obj_result = []
+            session = db.session()
+            for r in results:
+                o = type('', (), {})()
+                o.cliente = session.query(Cliente).filter(Cliente.id == r['cliente_id']).one()
+                o.cantidad = r['cantidad']
+                o.tipo = r['evento']
+                o.valor = r['precio']
+                o.fecha = datetime.strptime(r['fecha'], '%Y-%m-%d %H:%M:%S.%f')
+                obj_result.append(o)
+
+            return obj_result
+
+    @staticmethod
+    def getItemsByClient(procedencia):
+        # TODO: Make this from another way. This is for going fast and is a shit
+
+        engine = db.Engine.instance
+        with engine.connect() as conn:
+            sql = """ select r1.item_id, (ifnull(r1.total_sal,0) - ifnull(r2.total_dev,0) - ifnull(rv.vendido,0)) as tiene, r1.cliente_id
+            from (select im.item_id, m.tipo, c.nombre, sum(im.cantidad) as total_sal, m.cliente_id from movimiento as m 
+            left join items_movido as im on im.movimiento_id == m.id 
+            left join item as i on i.id == im.item_id
+            left join cliente as c on c.id == m.cliente_id
+            where m.tipo = "SALIDA" and i.procedencia_id == %d group by im.item_id, m.tipo,m.cliente_id) as r1
+            
+            left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id  from movimiento as m
+            left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id 
+            where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
+            left join item on item.id == r1.item_id          
+            left join (select v.item_id, v.cliente_id, sum(v.cantidad) as vendido from venta as v group by v.item_id, v.cliente_id) as rv 
+            on r1.item_id == rv.item_id and r1.cliente_id == rv.cliente_id
+            where tiene > 0;
+                    """ % procedencia
+
+            results = conn.execute(text(sql))
+            res = []
+            items_id = []
+            clients_id = []
+            for row in results:
+                items_id.append(row['item_id'])
+                clients_id.append(row['cliente_id'])
+                res.append((row['item_id'], row['cliente_id'], row['tiene']))
+
+            session = db.session()
+            items = session.query(Item).filter(Item.id.in_(items_id)).all()
+
+            clientes = session.query(Cliente).filter(Cliente.id.in_(clients_id)).all()
+
+            obj_res = []
+            for r in res:
+                o = type('', (), {})()
+                for i in items:
+                    if i.id == r[0]:
+                        o.item = i
+                for c in clientes:
+                    if c.id == r[1]:
+                        o.cliente = c
+                o.tiene = r[2]
+                obj_res.append(o)
+            return obj_res
 
     def addPrecio(self, precio):
         """
@@ -296,9 +348,11 @@ class Cliente(Base):
             left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id 
             where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
             left join item on item.id == r1.item_id          
-            left join (select v.item_id, v.cliente_id, sum(v.cantidad) as vendido from venta as v group by v.item_id) as rv on r1.item_id == rv.item_id
+            left join (select v.item_id, v.cliente_id, sum(v.cantidad) as vendido from venta as v 
+            where v.cliente_id == %d
+            group by v.item_id) as rv on r1.item_id == rv.item_id
             where tiene > 0;
-                    """ % self.id
+                    """ % (self.id, self.id)
 
             results = conn.execute(text(sql))
             r = []
