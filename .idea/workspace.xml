@@ -6,17 +6,9 @@
     <bookmark url="file://$PROJECT_DIR$/items_control/orm.py" line="15" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="475a9234-db38-4083-b5f9-a283b2de54e9" name="Default Changelist" comment="probando modo de update.2">
+    <list default="true" id="475a9234-db38-4083-b5f9-a283b2de54e9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/data/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/data/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/data/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/data/db.sqlite" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/orm.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/orm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/ui/custom_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/custom_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/ui/design_wx/client_add.fbp" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/design_wx/client_add.fbp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/items_control/ui/dialogs.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/ui/dialogs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/items_control/update.py" beforeDir="false" afterPath="$PROJECT_DIR$/items_control/update.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,8 +24,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/items_control/ui/dialogs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="853" selection-start-line="853" selection-end-line="853" />
+            <state relative-caret-position="187">
+              <caret line="1619" column="37" lean-forward="true" selection-start-line="1619" selection-start-column="37" selection-end-line="1619" selection-end-column="37" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -66,7 +58,7 @@
         <entry file="file://$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="35">
-              <caret line="672" column="13" selection-start-line="672" selection-start-column="13" selection-end-line="672" selection-end-column="13" />
+              <caret line="674" column="13" selection-start-line="674" selection-start-column="13" selection-end-line="674" selection-end-column="13" />
               <folding>
                 <element signature="e#315#372#0" expanded="true" />
               </folding>
@@ -123,7 +115,7 @@
         <entry file="file://$PROJECT_DIR$/items_control/ui/custom_controls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="186">
-              <caret line="35" column="49" lean-forward="true" selection-start-line="35" selection-start-column="49" selection-end-line="35" selection-end-column="49" />
+              <caret line="33" column="49" lean-forward="true" selection-start-line="33" selection-start-column="49" selection-end-line="33" selection-end-column="49" />
               <folding>
                 <element signature="e#0#57#0" expanded="true" />
               </folding>
@@ -641,7 +633,14 @@
       <option name="project" value="LOCAL" />
       <updated>1565150632114</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="arreglando cosas de las sessiones, hay que crear scoped session para todo y cada dialogo crea el suyo">
+      <created>1565316243532</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1565316243532</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView">
@@ -655,6 +654,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="32" width="1920" height="1047" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49444443" visible="true" weight="0.19240907" />
       <window_info id="Structure" order="1" sideWeight="0.50555557" side_tool="true" visible="true" weight="0.19240907" />
@@ -752,7 +752,8 @@
     <MESSAGE value="probando modo de update.1" />
     <MESSAGE value="probando modo de update.2" />
     <MESSAGE value="Agregue otro dialogo para ver los resumentes de cada viaje" />
-    <option name="LAST_COMMIT_MESSAGE" value="Agregue otro dialogo para ver los resumentes de cada viaje" />
+    <MESSAGE value="arreglando cosas de las sessiones, hay que crear scoped session para todo y cada dialogo crea el suyo" />
+    <option name="LAST_COMMIT_MESSAGE" value="arreglando cosas de las sessiones, hay que crear scoped session para todo y cada dialogo crea el suyo" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1056,7 +1057,7 @@
     <entry file="file://$PROJECT_DIR$/items_control/ui/design_wx/items_control_wx.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="35">
-          <caret line="672" column="13" selection-start-line="672" selection-start-column="13" selection-end-line="672" selection-end-column="13" />
+          <caret line="674" column="13" selection-start-line="674" selection-start-column="13" selection-end-line="674" selection-end-column="13" />
           <folding>
             <element signature="e#315#372#0" expanded="true" />
           </folding>
@@ -1073,7 +1074,7 @@
     <entry file="file://$PROJECT_DIR$/items_control/ui/custom_controls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="186">
-          <caret line="35" column="49" lean-forward="true" selection-start-line="35" selection-start-column="49" selection-end-line="35" selection-end-column="49" />
+          <caret line="33" column="49" lean-forward="true" selection-start-line="33" selection-start-column="49" selection-end-line="33" selection-end-column="49" />
           <folding>
             <element signature="e#0#57#0" expanded="true" />
           </folding>
@@ -1092,8 +1093,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/items_control/ui/dialogs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="853" selection-start-line="853" selection-end-line="853" />
+        <state relative-caret-position="187">
+          <caret line="1619" column="37" lean-forward="true" selection-start-line="1619" selection-start-column="37" selection-end-line="1619" selection-end-column="37" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>

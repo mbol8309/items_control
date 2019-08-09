@@ -1630,7 +1630,7 @@ class ProcedenciaStatus(design_wx.ProcedenciaStatus):
         self.stock_local.UpdateData(item_left)
         total = 0.0
         for i in item_left:
-            total += i.getPrecioinDate().precio
+            total += i.getPrecioinDate().precio * i.restantes
         self.stock_local_label.SetLabel("$ %.2f" % total)
 
         item_vendidos = session.query(orm.Venta).filter(orm.Item.procedencia_id == ps.id). \
@@ -1638,14 +1638,14 @@ class ProcedenciaStatus(design_wx.ProcedenciaStatus):
         self.stock_vendido.UpdateData(item_vendidos)
         total = 0.0
         for i in item_vendidos:
-            total += i.precio
+            total += i.cantidad * i.precio
         self.stock_vendido_label.SetLabel("$ %.2f" % total)
 
         itemxclient = orm.Item.getItemsByClient(ps.id)
         self.stock_cliente.UpdateData(itemxclient)
         total = 0.0
         for i in itemxclient:
-            total += i.item.getPrecioinDate().precio
+            total += i.item.getPrecioinDate().precio * i.tiene
         self.stock_cliente_label.SetLabel("$ %.2f" % total)
 
 
