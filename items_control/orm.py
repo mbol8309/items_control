@@ -163,10 +163,10 @@ class Item(Base):
     costo = Column(Float)
     
     #parent
-    parent_id = Column(Integer,ForeignKey('item_padre.id'))
+    parent_id = Column(Integer, ForeignKey('item_padre.id'))
 
     #procedencia
-    procedencia_id = Column(Integer,ForeignKey('procedencia.id'))
+    procedencia_id = Column(Integer, ForeignKey('procedencia.id'))
 
     #precio
     precio = relationship('PrecioVenta', backref='item')
@@ -346,7 +346,7 @@ class Cliente(Base):
             where m.tipo = "SALIDA" and c.id == %d group by im.item_id, m.tipo,m.cliente_id) as r1
             left join (select im.item_id, m.tipo, c.nombre, sum(im.cantidad)as total_dev, m.cliente_id  from movimiento as m
             left join items_movido as im on im.movimiento_id == m.id left join cliente as c on c.id == m.cliente_id 
-            where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
+            where m.tipo = "DEVOLUCION" group by im.item_id, m.tipo, m.cliente_id) as r2 on r1.item_id == r2.item_id and r1.cliente_id == r2.cliente_id 
             left join item on item.id == r1.item_id          
             left join (select v.item_id, v.cliente_id, sum(v.cantidad) as vendido from venta as v 
             where v.cliente_id == %d

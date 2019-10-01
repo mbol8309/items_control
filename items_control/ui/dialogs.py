@@ -300,8 +300,6 @@ class VentaItemDialog(design_wx.VentaItemDialog):
         if result == ITEM_OK:
             return vid.getReturn()
 
-
-ITEM_PROC, ITEM_NAME, ITEM_CANTIDAD, ITEM_PRICE = range(4)
 TAB_TIENE, TAB_LEFT = range(2)
 
 
@@ -309,14 +307,9 @@ class VentaDialog(design_wx.VentaDialog):
     def __init__(self, parent=None):
         design_wx.VentaDialog.__init__(self, parent)
 
-        # dict for searching
-        self.client_cb_dict = {}
-        self.list_client_has_dict = {}
-        self.list_item_left_dict = {}
-        self.list_client_paid_dict = {}
-
+        self.session = db.getScopedSession()
         # setup tables
-        self._setup_tables()
+        self._setup_tables_combo()
 
         # populate combos and list
         self._fill_clients()
@@ -326,83 +319,72 @@ class VentaDialog(design_wx.VentaDialog):
         self.Close()
 
     def _fill_clients(self):
-        session = db.session()
-        self.client_cb.Clear()
+        session = self.session
         clients = session.query(orm.Cliente).all()
-        idx = 0
-        for c in clients:
-            c.custom_id = id(c)
-            self.client_cb.Append(c.nombre, c.custom_id)
-            # self.client_cb.SetClientData(index, c.custom_id)
-            self.client_cb_dict[c.custom_id] = c
-
-        self.client_cb.SetSelection(0)
+        self.client_cb.UpdateData(clients)
         self._fill_client_has()
 
-    def _setup_tables(self):
+    def _setup_tables_combo(self):
 
         # client has
         for list in [self.list_client_has, self.list_item_left, self.list_client_paid]:
-            list.ClearAll()
-            list.InsertColumn(ITEM_PROC, "Procedencia")
-            list.InsertColumn(ITEM_NAME, "Nombre")
-            list.InsertColumn(ITEM_CANTIDAD, "Cantidad")
-            list.InsertColumn(ITEM_PRICE, "Precio")
+            list.ConfigColumns(["Procedencia", "Nombre", "Cantidad", "Precio"])
+
+        # combo config
+        self.client_cb.SetLambda(lambda c: c.nombre)
+
+        # list item client has
+        self.list_client_has.SetLambdas([
+            lambda i: i.procedencia.nombre,
+            lambda i: i.parent.nombre,
+            lambda i: str(i.tiene),
+            lambda i: str(i.getPrecioinDate().precio)
+        ])
+
+        # list item left
+        self.list_item_left.SetLambdas([
+            lambda i: i.procedencia.nombre,
+            lambda i: i.parent.nombre,
+            lambda i: str(i.restantes),
+            lambda i: str(i.getPrecioinDate().precio)
+        ])
+
+        # list client paid
+        self.list_client_paid.SetLambdas([
+            lambda i: i.item.procedencia.nombre,
+            lambda i: i.item.parent.nombre,
+            lambda i: str(i.cantidad),
+            lambda i: str(i.precio)
+        ])
+
 
     def _fill_client_has(self):
-        client = self.client_cb_dict[self.client_cb.GetClientData(self.client_cb.GetCurrentSelection())]
+        client = self.client_cb.GetActiveItem()
         items = client.posession_items()
-        self.list_client_has.DeleteAllItems()
-        idx = 0
-        for i in items:
-            i.custom_id = id(i)
-            index = self.list_client_has.InsertItem(idx, i.procedencia.nombre)
-            self.list_client_has.SetItem(index, ITEM_NAME, i.parent.nombre)
-            self.list_client_has.SetItem(index, ITEM_CANTIDAD, str(i.tiene))
-            self.list_client_has.SetItem(index, ITEM_PRICE, str(i.getPrecioinDate().precio))
-            self.list_client_has.SetItemData(index, i.custom_id)
-            self.list_client_has_dict[i.custom_id] = i
-            idx += 1
+
+        self.list_client_has.UpdateData(items)
 
     def _fill_item_left(self):
-        self.list_item_left.DeleteAllItems()
-        session = db.session()
+        session = self.session
         items = session.query(orm.Item).filter(orm.Item.restantes > 0)
+        self.list_item_left.UpdateData(items)
 
-        idx = 0
-        for i in items:
-            i.custom_id = id(i)
-            index = self.list_item_left.InsertItem(idx, i.procedencia.nombre)
-            self.list_item_left.SetItem(index, ITEM_NAME, i.parent.nombre)
-            self.list_item_left.SetItem(index, ITEM_CANTIDAD, str(i.restantes))
-            self.list_item_left.SetItem(index, ITEM_PRICE, str(i.getPrecioinDate().precio))
-            self.list_item_left.SetItemData(index, i.custom_id)
-            idx += 1
-            self.list_item_left_dict[i.custom_id] = i
 
     def client_cb_change(self, event):
         self._fill_client_has()
-        self.list_client_paid_dict = {}
         self.list_client_paid.DeleteAllItems()
         self._update_total()
 
     def _update_total(self):
         total = 0
-        for i in self.list_client_paid_dict:
-            total += self.list_client_paid_dict[i].precio
+        for i in self.list_client_paid.GetItems():
+            total += i.precio
         self.total_label.SetLabel("$%.2f" % total)
 
     def _add_client_paid(self, item):
         if not isinstance(item, orm.Venta):
             return
-        count = self.list_client_paid.GetItemCount()
-        item.custom_id = id(item)
-        index = self.list_client_paid.InsertItem(count, item.item.procedencia.nombre)
-        self.list_client_paid.SetItem(index, ITEM_NAME, item.item.parent.nombre)
-        self.list_client_paid.SetItem(index, ITEM_CANTIDAD, str(item.cantidad))
-        self.list_client_paid.SetItem(index, ITEM_PRICE, str(item.precio))
-        self.list_client_paid.SetItemData(index, item.custom_id)
-        self.list_client_paid_dict[item.custom_id] = item
+        self.list_client_paid.AppendData(item)
 
         self._update_total()
 
@@ -410,13 +392,11 @@ class VentaDialog(design_wx.VentaDialog):
         index = self.list_client_paid.GetFirstSelected()
         if index == -1:
             return
-        venta = self.list_client_paid_dict[self.list_client_paid.GetItemData(index)]
+        venta = self.list_client_paid.GetItem(index)
         result = VentaItemDialog.getEditItemDetail(venta, self)
         if result is None:
             return
-        self.list_client_paid.SetItem(index, ITEM_CANTIDAD, str(result.cantidad))
-        self.list_client_paid.SetItem(index, ITEM_PRICE, str(result.precio))
-        self.list_client_paid_dict[result.custom_id] = result
+        self.list_client_paid.UpdateItem(index, result)
         self._update_total()
 
     def add_sale_click(self, event):
@@ -424,7 +404,7 @@ class VentaDialog(design_wx.VentaDialog):
         if s == TAB_TIENE:
             if self.list_client_has.GetFirstSelected() == -1:
                 return
-            item = self.list_client_has_dict[self.list_client_has.GetItemData(self.list_client_has.GetFirstSelected())]
+            item = self.list_client_has.GetItem(self.list_client_has.GetFirstSelected())
             result = VentaItemDialog.getItemDetail(item, self)
             if result is None:
                 return
@@ -433,7 +413,7 @@ class VentaDialog(design_wx.VentaDialog):
         if s == TAB_LEFT:
             if self.list_item_left.GetFirstSelected() == -1:
                 return
-            item = self.list_item_left_dict[self.list_item_left.GetItemData(self.list_item_left.GetFirstSelected())]
+            item = self.list_item_left.GetItem(self.list_item_left.GetFirstSelected())
             result = VentaItemDialog.getItemDetail(item, self)
             if result is None:
                 return
@@ -443,15 +423,15 @@ class VentaDialog(design_wx.VentaDialog):
     def ok_button_click(self, event):
         venta_directa = []
         venta_moviendo = []
-        session = db.session()
+        session = self.session
 
-        for i in self.list_client_paid_dict:
-            if self.list_client_paid_dict[i].comes_from == TAB_TIENE:
-                venta_directa.append(self.list_client_paid_dict[i])
-            if self.list_client_paid_dict[i].comes_from == TAB_LEFT:
-                venta_moviendo.append(self.list_client_paid_dict[i])
+        for i in self.list_client_paid.GetItems():
+            if i.comes_from == TAB_TIENE:
+                venta_directa.append(i)
+            if i.comes_from == TAB_LEFT:
+                venta_moviendo.append(i)
 
-        if len(venta_directa) == 0 or len(venta_moviendo) == 0:
+        if len(venta_directa) == 0 and len(venta_moviendo) == 0:
             return
 
         result = wx.MessageBox("Esta seguro que desea realizar esta venta?", "Venta",
@@ -459,13 +439,13 @@ class VentaDialog(design_wx.VentaDialog):
         if result != wx.OK:
             return
 
-        cliente_id = self.client_cb_dict[self.client_cb.GetClientData(self.client_cb.GetSelection())].id
-        del self.client_cb_dict  # for session
+        cliente = self.client_cb.GetActiveItem()
+        # del self.client_cb_dict  # for session
 
         if len(venta_moviendo) > 0:  # si se escogio alguno que teniamos
             movimiento = orm.Movimiento()
 
-            movimiento.cliente_id = cliente_id
+            movimiento.cliente = cliente
             movimiento.fecha = utils._wxdate2pydate(self.date_cb.GetValue())
             movimiento.tipo = orm.TipoMovimiento.SALIDA
 
@@ -476,19 +456,15 @@ class VentaDialog(design_wx.VentaDialog):
                 im.item = v.item
                 movimiento.items.append(im)
 
-            session = session.object_session(movimiento)
+            # session = session.object_session(movimiento)
             session.add(movimiento)
             session.commit()
 
-        session = db.session()
 
         venta_directa = venta_directa + venta_moviendo
-        session = session.object_session(venta_directa[0])
         for v in venta_directa:
-            v.cliente_id = cliente_id
+            v.cliente = cliente
             v.fecha = utils._wxdate2pydate(self.date_cb.GetValue())
-            # session = session.object_session(v)
-            # session.add(v)
 
         session.bulk_save_objects(venta_directa)
         session.commit()
@@ -499,7 +475,6 @@ class VentaDialog(design_wx.VentaDialog):
         index = self.list_client_paid.GetFirstSelected()
         if index == -1:
             return
-        del self.list_client_paid_dict[self.list_client_paid.GetItemData(index)]
         self.list_client_paid.DeleteItem(index)
         self._update_total()
 
@@ -611,8 +586,8 @@ class ClientesDialog(design_wx.ClientList):
         self.Close()
 
     def add_client_click(self, event):
-        client = ClientDataDialog.ClientDataDialog.addClient(self)
-        if client is ClientDataDialog.CLIENT_OK:
+        client = ClientDataDialog.addClient(self)
+        if client is CLIENT_OK:
             self.UpdateClients()
 
     def edit_client_click(self, event):
@@ -620,8 +595,8 @@ class ClientesDialog(design_wx.ClientList):
         if item == -1:
             return
         user = self.rowdict[item]
-        results = ClientDataDialog.ClientDataDialog.addClient(self, user, self.session)
-        if results is ClientDataDialog.CLIENT_OK:
+        results = ClientDataDialog.addClient(self, user, self.session)
+        if results is CLIENT_OK:
             self.UpdateClients()
 
     def del_client_click(self, event):
@@ -1169,16 +1144,10 @@ class ItemMove(design_wx.EntityMove):
 class MovimientoDialog(design_wx.MovementDialog):
     def __init__(self, parent):
         design_wx.MovementDialog.__init__(self, parent)
-        # dictionaries
-        self.clients_dict = {}
-        self.item_client_has_dict = {}
-        self.item_left_dict = {}
-        self.item_client_take_dict = {}
-        self.item_dev_list_dict = {}
 
-        # self.session = db.session()
+        self.session = db.getScopedSession()
 
-        self._reset_tables()
+        self._setup_controls()
         self._fill_clients()
 
         self._restart_item_left()
@@ -1186,92 +1155,76 @@ class MovimientoDialog(design_wx.MovementDialog):
     def cancel_click(self, event):
         self.Close()
 
-    def _reset_tables(self):
-
+    def _setup_controls(self):
         lists_price = [self.item_left_list, self.item_client_take]
         lists = [self.item_client_has, self.item_dev_list]
 
         for l in lists:
-            l.ClearAll()
-            l.InsertColumn(ITEM_PROC, "Procedencia")
-            l.InsertColumn(ITEM_ITEM, "Articulo")
-            l.InsertColumn(ITEM_CANTIDAD, "Cantidad")
+            l.ConfigColumns(['Procedencia', 'Articulo', 'Cantidad'])
 
         for l in lists_price:
-            l.ClearAll()
-            l.InsertColumn(ITEM_PROC, "Procedencia")
-            l.InsertColumn(ITEM_ITEM, "Articulo")
-            l.InsertColumn(ITEM_CANTIDAD, "Cantidad")
-            l.InsertColumn(ITEM_PRECIO, "Precio")
+            l.ConfigColumns(['Procedencia', 'Articulo', 'Cantidad', 'Precio'])
+
+        self.item_left_list.SetLambdas([
+            lambda i: i.procedencia.nombre,
+            lambda i: i.parent.nombre,
+            lambda i: str(i.restantes),
+            lambda i: str(i.getPrecioinDate().precio)
+        ])
+        self.item_client_take.SetLambdas([
+            lambda i: i.item.procedencia.nombre,
+            lambda i: i.item.parent.nombre,
+            lambda i: str(i.cantidad),
+            lambda i: str(i.item.getPrecioinDate().precio)
+        ])
+        self.item_client_has.SetLambdas([
+            lambda i: i.procedencia.nombre,
+            lambda i: i.parent.nombre,
+            lambda i: str(i.tiene)
+        ])
+        self.item_dev_list.SetLambdas([
+            lambda i: i.item.procedencia.nombre,
+            lambda i: i.item.parent.nombre,
+            lambda i: str(i.cantidad)
+        ])
+
+        self.client_cb.SetLambda(lambda c: c.nombre)
 
     def _restart_item_left(self):
 
-        session = db.getScopedSession()
-        self.item_left_list.DeleteAllItems()
+        session = self.session
         items = session.query(orm.Item).all()
-
-        idx = 0
-        for i in items:
-            i.custom_id = id(i)
-            index = self.item_left_list.InsertItem(idx, i.procedencia.nombre)
-            self.item_left_list.SetItem(index, ITEM_ITEM, i.parent.nombre)
-            self.item_left_list.SetItem(index, ITEM_CANTIDAD, str(i.restantes))
-            self.item_left_list.SetItem(index, ITEM_PRECIO, str(i.precio[-1].precio))
-            self.item_left_list.SetItemData(index, i.custom_id)
-            idx += 1
-            self.item_left_dict[i.custom_id] = i
+        self.item_left_list.UpdateData(items)
 
     def client_cb_change(self, event):
         self.item_dev_list.DeleteAllItems()
         self.item_client_take.DeleteAllItems()
 
     def _fill_clients(self):
-        session = db.getScopedSession()
+        session = self.session
         clients = session.query(orm.Cliente).all()
 
-        self.client_cb.Clear()
-
-        for c in clients:
-            c.custom_id = id(c)
-            index = self.client_cb.Append(c.nombre)
-            self.client_cb.SetClientData(index, c.custom_id)
-            self.clients_dict[c.custom_id] = c
-
-        self.client_cb.SetSelection(0)
+        self.client_cb.UpdateData(clients)
         self._fill_client_items_has()
 
     def _fill_client_items_has(self):
-        client = self.clients_dict[self.client_cb.GetClientData(self.client_cb.GetCurrentSelection())]
-        session = db.getScopedSession()
-        client = session.query(type(client)).populate_existing().get(client.id)
-        # session.query(type(some_object)).populate_existing().get(some_object.id)
+        client = self.client_cb.GetActiveItem()
+        session = self.session
         items_has = client.posession_items()
-
-        self.item_client_has.DeleteAllItems()
-        idx = 0
-        for i in items_has:
-            i.custom_id = id(i)
-            index = self.item_client_has.InsertItem(idx, i.procedencia.nombre)
-            self.item_client_has.SetItem(index, ITEM_ITEM, i.parent.nombre)
-            self.item_client_has.SetItem(index, ITEM_CANTIDAD, str(i.tiene))
-            self.item_client_has.SetItemData(index, i.custom_id)
-            self.item_client_has_dict[i.custom_id] = i
-            idx += 1
+        self.item_client_has.UpdateData(items_has)
 
     def dev_del_click(self, event):
         index = self.item_dev_list.GetFirstSelected()
         if index == -1:
             return
-
-        item = self.item_dev_list_dict[self.item_dev_list.GetItemData(index)]
-        del self.item_dev_list_dict[item.custom_id]
         self.item_dev_list.DeleteItem(index)
 
     def dev_add_click(self, event):
         index = self.item_client_has.GetFirstSelected()
         if index == -1:
             return
-        item = self.item_client_has_dict[self.item_client_has.GetItemData(index)]
+
+        item = self.item_client_has.GetItem(index)
 
         result = ItemMove.getItemMove(item, self, True)  # True para especificar una devolucion y poner bien el maximo
         if result is None:
@@ -1280,51 +1233,35 @@ class MovimientoDialog(design_wx.MovementDialog):
             self._add_item_devuelto(result)
 
     def _add_item_devuelto(self, item):
-        count = self.item_dev_list.GetItemCount()
-        item.custom_id = id(item)
-        index = self.item_dev_list.InsertItem(count, item.item.procedencia.nombre)
-        self.item_dev_list.SetItem(index, ITEM_ITEM, item.item.parent.nombre)
-        self.item_dev_list.SetItem(index, ITEM_CANTIDAD, str(item.cantidad))
-        self.item_dev_list.SetItemData(index, item.custom_id)
-        self.item_dev_list_dict[item.custom_id] = item
+        self.item_dev_list.AppendData(item)
 
     def item_dev_list_click(self, event):
         index = self.item_dev_list.GetFirstSelected()
         if index == -1:
             return
 
-        item = self.item_dev_list_dict[self.item_dev_list.GetItemData(index)]
+        item = self.item_dev_list.GetItem(index)
 
         result = ItemMove.getEditItemMove(item, self,
                                           True)  # True para especificar una devolucion y poner bien el maximo
         if result is None:
             return
         if isinstance(result, orm.ItemMovido):
-            self.item_dev_list.SetItem(index, ITEM_CANTIDAD, str(result.cantidad))
-            self.item_dev_list_dict[item.custom_id] = result
+            self.item_dev_list.UpdateItem(index, item)
 
     def client_cb_change(self, event):
         self._fill_client_items_has()
 
     def _add_item_salida(self, item):
 
-        lista = self.item_client_take
-
-        count = lista.GetItemCount()
-        item.custom_id = id(item)
-        index = lista.InsertItem(count, item.item.procedencia.nombre)
-        lista.SetItem(index, ITEM_ITEM, item.item.parent.nombre)
-        lista.SetItem(index, ITEM_CANTIDAD, str(item.cantidad))
-        lista.SetItem(index, ITEM_PRECIO, str(item.item.precio[-1].precio))
-        lista.SetItemData(index, item.custom_id)
-        self.item_client_take_dict[item.custom_id] = item
+        self.item_client_take.AppendData(item)
 
     def salida_add_click(self, event):
         index = self.item_left_list.GetFirstSelected()
         if index == -1:
             return
 
-        item = self.item_left_dict[self.item_left_list.GetItemData(index)]
+        item = self.item_left_list.GetItem(index)
 
         result = ItemMove.getItemMove(item, self)
         if result is None:
@@ -1337,65 +1274,59 @@ class MovimientoDialog(design_wx.MovementDialog):
         if index == -1:
             return
 
-        item = self.item_client_take_dict[self.item_client_take.GetItemData(index)]
+        item = self.item_client_take.GetItem(index)
 
         result = ItemMove.getEditItemMove(item, self)
         if result is None:
             return
         if isinstance(result, orm.ItemMovido):
-            self.item_client_take.SetItem(index, ITEM_CANTIDAD, str(result.cantidad))
-            self.item_client_take_dict[item.custom_id] = result
+            self.item_client_take.UpdateItem(index, item)
 
     def salida_del_click(self, event):
         index = self.item_client_take.GetFirstSelected()
         if index == -1:
             return
-
-        item = self.item_client_take_dict[self.item_client_take.GetItemData(index)]
-
-        del self.item_client_take_dict[item.custom_id]
         self.item_client_take.DeleteItem(index)
 
+    def client_add_click(self, event):
+        if ClientDataDialog.addClient(self, None, self.session) == CLIENT_OK:
+            self._fill_clients()
+
+
     def ok_click(self, event):
-
-        session = db.session()
-        cliente_id = self.clients_dict[self.client_cb.GetClientData(self.client_cb.GetCurrentSelection())].id
-
-        del self.clients_dict  # for unataching
-        # cliente = session.query(orm.Cliente).populate_existing().get(cliente_id)
-        # session = session.object_session(cliente)
-
+        if self.item_client_take.GetItemCount() == 0 and \
+                self.item_dev_list.GetItemCount() == 0:
+            self.Close()
         result = wx.MessageBox("Realizar movimientos? Seguro?", "Movimientos", wx.OK | wx.CANCEL | wx.ICON_QUESTION)
         if result == wx.CANCEL:
             return
+
         if result == wx.OK:
-            if len(self.item_client_take_dict) > 0:
+            session = self.session
+            cliente = self.client_cb.GetActiveItem()
+            if self.item_client_take.GetItemCount() > 0:
                 m_salida = orm.Movimiento()
                 m_salida.tipo = orm.TipoMovimiento.SALIDA
+                item_take = self.item_client_take.GetItems()
+                for items in item_take:
+                    m_salida.items.append(items)
 
-                for items in self.item_client_take_dict:
-                    m_salida.items.append(self.item_client_take_dict[items])
-
-                m_salida.cliente_id = cliente_id
-                # m_salida.fecha = datetime.now()
-                session = session.object_session(m_salida)
+                m_salida.cliente_id = cliente.id
+                m_salida.fecha = utils._wxdate2pydate(self.datetxt.GetValue())
                 session.add(m_salida)
-                session.commit()
-
-            if len(self.item_dev_list_dict) > 0:
+            if self.item_dev_list.GetItemCount() > 0:
                 m_devolucion = orm.Movimiento()
                 m_devolucion.tipo = orm.TipoMovimiento.DEVOLUCION
+                items_dev = self.item_dev_list.GetItems()
+                for items in items_dev:
+                    m_devolucion.items.append(items)
 
-                for items in self.item_dev_list_dict:
-                    m_devolucion.items.append(self.item_dev_list_dict[items])
+                m_devolucion.cliente_id = cliente.id
+                m_devolucion.fecha = utils._wxdate2pydate(self.datetxt.GetValue())
+                m_devolucion = self.session.merge(m_devolucion)
+                # session.add(m_devolucion)
 
-                m_devolucion.cliente_id = cliente_id
-                # m_devolucion.fecha = datetime.now()
-
-                # session = db.session()
-                session = session.object_session(m_devolucion)
-                session.add(m_devolucion)
-                session.commit()
+            session.commit()
 
             self.Close()
 

@@ -53,6 +53,13 @@ class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
         self.custom_item_id = {}
         self.data = None
 
+    def DeleteItem(self, index):
+        if 0 <= index < self.GetItemCount():
+            del self.custom_item_id[self.GetItemData(index)]
+            super(CustomListCtrl, self).DeleteItem(index)
+
+
+
     def ConfigColumns(self, columns):
         self.custom_colums = columns
 
@@ -105,6 +112,14 @@ class CustomListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
             self.SetItemData(index, d.custom_id)
             self.custom_item_id[d.custom_id] = d
             idx += 1
+
+    def UpdateItem(self, index, item):
+
+        owndata = self.GetItemData(index)
+        self.custom_item_id[owndata] = item
+        functions = self.functions
+        for f in range(0, len(functions)):
+            self.SetItem(index, f, functions[f](item))
 
     def AppendData(self, item):
         index = self.GetItemCount()

@@ -33,7 +33,7 @@ def create_db(filename):
 
 def getScopedSession():
     global session_factory
-    global engine
+    # global engine
     return scoped_session(session_factory)
 
 

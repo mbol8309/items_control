@@ -847,12 +847,16 @@ class MovementDialog(wx.Dialog):
         bSizer20.Add(self.m_staticText18, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         client_cbChoices = []
-        self.client_cb = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, client_cbChoices, 0)
+        self.client_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, client_cbChoices, 0)
         self.client_cb.SetSelection(0)
         bSizer20.Add(self.client_cb, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        self.m_button17 = wx.Button(self, wx.ID_ANY, u"+", wx.DefaultPosition, wx.Size(30, 30), 0)
-        bSizer20.Add(self.m_button17, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.clent_add_button = wx.Button(self, wx.ID_ANY, u"+", wx.DefaultPosition, wx.Size(30, 30), 0)
+        bSizer20.Add(self.clent_add_button, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        self.datetxt = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize,
+                                             wx.adv.DP_DEFAULT)
+        bSizer20.Add(self.datetxt, 1, wx.ALL, 5)
 
         bSizer19.Add(bSizer20, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -860,8 +864,8 @@ class MovementDialog(wx.Dialog):
         self.salida_panel = wx.Panel(self.m_notebook3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer21 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.item_left_list = wx.ListCtrl(self.salida_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                          wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.item_left_list = CustomListCtrl(self.salida_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                             wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer21.Add(self.item_left_list, 1, wx.ALL | wx.EXPAND, 5)
 
         bSizer22 = wx.BoxSizer(wx.VERTICAL)
@@ -874,8 +878,8 @@ class MovementDialog(wx.Dialog):
 
         bSizer21.Add(bSizer22, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-        self.item_client_take = wx.ListCtrl(self.salida_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                            wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.item_client_take = CustomListCtrl(self.salida_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                               wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer21.Add(self.item_client_take, 1, wx.ALL | wx.EXPAND, 5)
 
         self.salida_panel.SetSizer(bSizer21)
@@ -885,8 +889,8 @@ class MovementDialog(wx.Dialog):
         self.dev_panel = wx.Panel(self.m_notebook3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer24 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.item_dev_list = wx.ListCtrl(self.dev_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                         wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.item_dev_list = CustomListCtrl(self.dev_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                            wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer24.Add(self.item_dev_list, 1, wx.ALL | wx.EXPAND, 5)
 
         bSizer25 = wx.BoxSizer(wx.VERTICAL)
@@ -899,8 +903,8 @@ class MovementDialog(wx.Dialog):
 
         bSizer24.Add(bSizer25, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-        self.item_client_has = wx.ListCtrl(self.dev_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                           wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.item_client_has = CustomListCtrl(self.dev_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                              wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer24.Add(self.item_client_has, 1, wx.ALL | wx.EXPAND, 5)
 
         self.dev_panel.SetSizer(bSizer24)
@@ -927,6 +931,7 @@ class MovementDialog(wx.Dialog):
 
         # Connect Events
         self.client_cb.Bind(wx.EVT_CHOICE, self.client_cb_change)
+        self.clent_add_button.Bind(wx.EVT_BUTTON, self.client_add_click)
         self.item_left_list.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.salida_add_click)
         self.salida_right_bt.Bind(wx.EVT_BUTTON, self.salida_add_click)
         self.salida_left_bt.Bind(wx.EVT_BUTTON, self.salida_del_click)
@@ -944,6 +949,9 @@ class MovementDialog(wx.Dialog):
 
     # Virtual event handlers, overide them in your derived class
     def client_cb_change(self, event):
+        event.Skip()
+
+    def client_add_click(self, event):
         event.Skip()
 
     def salida_add_click(self, event):
@@ -1085,7 +1093,7 @@ class VentaDialog(wx.Dialog):
         bSizer28.Add(self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         client_cbChoices = []
-        self.client_cb = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, client_cbChoices, 0)
+        self.client_cb = CustomChoice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, client_cbChoices, 0)
         self.client_cb.SetSelection(0)
         bSizer28.Add(self.client_cb, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
@@ -1111,8 +1119,8 @@ class VentaDialog(wx.Dialog):
         self.tiene_panel = wx.Panel(self.item_tabs, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer35 = wx.BoxSizer(wx.VERTICAL)
 
-        self.list_client_has = wx.ListCtrl(self.tiene_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                           wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.list_client_has = CustomListCtrl(self.tiene_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                              wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer35.Add(self.list_client_has, 1, wx.ALL | wx.EXPAND, 5)
 
         self.tiene_panel.SetSizer(bSizer35)
@@ -1122,8 +1130,8 @@ class VentaDialog(wx.Dialog):
         self.left_panel = wx.Panel(self.item_tabs, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer36 = wx.BoxSizer(wx.VERTICAL)
 
-        self.list_item_left = wx.ListCtrl(self.left_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                                          wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.list_item_left = CustomListCtrl(self.left_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                             wx.LC_REPORT | wx.LC_SINGLE_SEL)
         bSizer36.Add(self.list_item_left, 1, wx.ALL | wx.EXPAND, 5)
 
         self.left_panel.SetSizer(bSizer36)
@@ -1152,7 +1160,7 @@ class VentaDialog(wx.Dialog):
 
         bSizer32.Add(self.m_staticText29, 0, wx.ALL, 5)
 
-        self.list_client_paid = wx.ListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT)
+        self.list_client_paid = CustomListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT)
         bSizer32.Add(self.list_client_paid, 1, wx.ALL | wx.EXPAND, 5)
 
         bSizer34 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1776,6 +1784,7 @@ class ProcedenciaStatus(wx.Dialog):
     def __del__(self):
         pass
 
+
     # Virtual event handlers, overide them in your derived class
     def procedencia_change(self, event):
         event.Skip()
@@ -1852,6 +1861,7 @@ class ItemTrackerDialog(wx.Dialog):
 
     def __del__(self):
         pass
+
 
     # Virtual event handlers, overide them in your derived class
     def procedencia_change(self, event):
